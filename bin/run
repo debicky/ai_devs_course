@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../config/environment'
+
+DEFAULT_OPENAI_MODEL = 'gpt-4o-mini'
+DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash-lite'
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+def optional_env(name)
+  value = ENV[name].to_s.strip
+  value.empty? ? nil : value
+end
+
+# --- Env ---
+ag3nts_api_key = required_env!('AG3NTS_API_KEY')
+
+gemini_api_key = optional_env('GEMINI_API_KEY')
+
+# Prefer Gemini if key is present; fall back to OpenAI
+llm_api_key, llm_base_url, default_model =
+  if gemini_api_key
+    [gemini_api_key, Clients::LlmClient::GEMINI_BASE_URL, DEFAULT_GEMINI_MODEL]
+  else
+    [required_env!('OPENAI_API_KEY'), Clients::LlmClient::OPENAI_BASE_URL, DEFAULT_OPENAI_MODEL]
+  end
+
+llm_model = optional_env('LLM_MODEL') || default_model
+
+# --- Wire dependencies ---
+http_client = Clients::HttpClient.new
+hub_client  = Clients::HubClient.new(http_client: http_client, api_key: ag3nts_api_key)
+llm_client  = Clients::LlmClient.new(
+  http_client: http_client,
+  api_key: llm_api_key,
+  model: llm_model,
+  base_url: llm_base_url
+)
+
+csv_parser         = Services::People::CsvParser.new
+people_filter      = Services::People::Filter.new
+job_classifier     = Services::People::JobClassifier.new(llm_client: llm_client)
+transport_selector = Services::People::TransportSelector.new
+answer_builder     = Services::People::AnswerBuilder.new
+
+Tasks::PeopleTask.new(
+  hub_client: hub_client,
+  csv_parser: csv_parser,
+  people_filter: people_filter,
+  job_classifier: job_classifier,
+  transport_selector: transport_selector,
+  answer_builder: answer_builder
+)
+
+def step(label)
+  print "→ #{label}... "
+  result = yield
+  puts 'done'
+  result
+end
+
+# --- Run ---
+csv_text   = step('Fetching CSV')              { hub_client.fetch_people_csv }
+people     = step('Parsing CSV')               { csv_parser.call(csv_text).tap { |r| print "(#{r.size} people) " } }
+filtered   = step('Filtering people')          { people_filter.call(people).tap { |r| print "(#{r.size} matched) " } }
+tags_by_id = step('Classifying jobs via LLM')  do
+  job_classifier.call(filtered).tap do |r|
+    print "(#{r.size} classified) "
+  end
+end
+with_tags  = filtered.map { |p| p.merge(tags: tags_by_id.fetch(Integer(p[:id]), [])) }
+selected   = step('Selecting transport people') do
+  transport_selector.call(with_tags).tap do |r|
+    print "(#{r.size} found) "
+  end
+end
+answer = answer_builder.call(selected)
+
+puts "\n  Transport people:"
+selected.each { |p| puts "    #{p[:first_name]} #{p[:last_name]} (born #{p[:born]}) — #{p[:tags].join(', ')}" }
+
+result = step('Sending to /verify') { hub_client.verify(task: 'people', answer: answer) }
+puts JSON.pretty_generate(result)
