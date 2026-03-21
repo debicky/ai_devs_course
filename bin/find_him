@@ -1,0 +1,177 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../config/environment'
+
+DEFAULT_MODEL = 'gpt-4o-mini'
+SUSPECTS_PATH = File.expand_path('../data/suspects.json', __dir__)
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+def optional_env(name)
+  value = ENV[name].to_s.strip
+  value.empty? ? nil : value
+end
+
+ag3nts_api_key  = required_env!('AG3NTS_API_KEY')
+openai_api_key  = required_env!('OPENAI_API_KEY')
+llm_model       = ENV.fetch('LLM_MODEL', DEFAULT_MODEL)
+
+http_client = Clients::HttpClient.new
+hub_client = Clients::HubClient.new(http_client: http_client, api_key: ag3nts_api_key)
+llm_client = Clients::LlmClient.new(
+  http_client: http_client,
+  api_key: openai_api_key,
+  model: llm_model,
+  base_url: Clients::LlmClient::OPENAI_BASE_URL
+)
+
+suspects_loader = Services::FindHim::SuspectsLoader.new(file_path: SUSPECTS_PATH)
+distance_calculator = Services::FindHim::DistanceCalculator.new
+tool_executor = Services::FindHim::ToolExecutor.new(
+  hub_client: hub_client,
+  suspects_loader: suspects_loader,
+  distance_calculator: distance_calculator
+)
+
+task = Tasks::FindHimTask.new(
+  llm_client: llm_client,
+  tool_executor: tool_executor
+)
+
+def step(label)
+  print "→ #{label}... "
+  result = yield
+  puts 'done'
+  result
+end
+
+def parse_tool_args(raw)
+  return {} if raw.to_s.strip.empty?
+
+  JSON.parse(raw)
+rescue JSON::ParserError
+  {}
+end
+
+def format_tool_call(name, args)
+  h = args || {}
+  case name
+  when 'get_suspects'
+    'get_suspects → load suspects from data/suspects.json'
+  when 'get_power_plants'
+    'get_power_plants → fetch power plant list from API'
+  when 'get_person_locations'
+    "get_person_locations(#{h['name']} #{h['surname']}) → where was this person seen"
+  when 'get_closest_plant_for_suspect'
+    "get_closest_plant_for_suspect(#{h['name']} #{h['surname']}) → closest plant code and distance (use this code in submit_answer)"
+  when 'get_closest_plant'
+    "get_closest_plant(#{h['lat']}, #{h['lon']}) → closest plant code and distance in one call"
+  when 'calculate_distance'
+    "calculate_distance(#{h['lat1']},#{h['lon1']} → #{h['lat2']},#{h['lon2']}) → distance in km"
+  when 'get_access_level'
+    "get_access_level(#{h['name']} #{h['surname']}, born #{h['birthYear']}) → level or \"not found\" if wrong person/year"
+  when 'submit_answer'
+    "submit_answer(#{h['name']} #{h['surname']}, level=#{h['accessLevel']}, plant=#{h['powerPlant']}) → send final answer"
+  else
+    name
+  end
+end
+
+def format_tool_result(name, result)
+  return nil unless result.is_a?(Hash)
+
+  case name
+  when 'get_suspects'
+    suspects = Array(result[:suspects])
+    "loaded #{suspects.size} suspects"
+  when 'get_closest_plant_for_suspect'
+    return "error: #{result[:error]}" if result[:error]
+
+    "closestPlantCode=#{result[:closestPlantCode]}, distanceKm=#{result[:distanceKm]}"
+  when 'get_access_level'
+    return "error: #{result[:error]}" if result[:error]
+
+    "accessLevel=#{result[:accessLevel]}"
+  when 'submit_answer'
+    return "error: #{result[:error]}" if result[:error]
+
+    verification = result[:verification] || {}
+    "submitted successfully#{verification.empty? ? '' : ", verification=#{verification.inspect}"}"
+  else
+    result.inspect
+  end
+end
+
+def remove_suspect_from_file(path, name:, surname:)
+  data = JSON.parse(File.read(path))
+  raise ArgumentError, "Suspects file must be a JSON array" unless data.is_a?(Array)
+
+  before = data.size
+  data.reject! { |entry| entry['name'].to_s.strip == name.to_s.strip && entry['surname'].to_s.strip == surname.to_s.strip }
+  removed = before - data.size
+  File.write(path, JSON.pretty_generate(data))
+  removed
+end
+
+# --- Run ---
+puts "Suspects: data/suspects.json (from people task output; run bin/run first to populate)"
+step('Loading suspects') do
+  suspects_loader.call.tap { |s| print "(#{s.size} suspects) " }
+end
+
+loop do
+  result = step('Running findhim agent') do
+    task.call do |iteration, response, tool_results|
+      tool_results = Array(tool_results)
+      tool_calls = Array(response['tool_calls'])
+      max = Tasks::FindHimTask::MAX_ITERATIONS
+      if tool_results.any?
+        tool_results.each do |tool_result|
+          tool_name = tool_result[:name].to_s
+          args = tool_result[:arguments]
+          result_summary = format_tool_result(tool_name, tool_result[:result])
+          puts "  [#{iteration}/#{max}] #{format_tool_call(tool_name, args)}"
+          puts "    ← #{result_summary}" if result_summary
+        end
+      elsif tool_calls.empty?
+        content = response['content'].to_s.strip
+        puts "  [#{iteration}/#{max}] Assistant reply (no tool calls)"
+        puts "    #{content}" unless content.empty?
+      else
+        puts "  [#{iteration}/#{max}] Assistant prepared tool calls"
+      end
+    end
+  end
+
+  if result.is_a?(Hash) && result[:incorrect_person]
+    name = result[:incorrect_person][:name]
+    surname = result[:incorrect_person][:surname]
+    submitted = result[:answer] || result
+    puts "\n  Verify rejected answer (server: check name, surname, access level, power plant code):"
+    puts "    Submitted: #{submitted.inspect}"
+    puts "    Error: #{result[:error]}"
+    puts "  Optional: remove this suspect and retry? The failure might be wrong access level or plant code, not the person."
+    removed = remove_suspect_from_file(SUSPECTS_PATH, name: name, surname: surname)
+    if removed.positive?
+      puts "  Removed #{name} #{surname} from data/suspects.json (#{removed} entry), retrying..."
+      remaining = JSON.parse(File.read(SUSPECTS_PATH)).size
+      if remaining.zero?
+        puts "  No suspects left in data/suspects.json; cannot retry."
+        exit 1
+      end
+      next
+    end
+    puts "  Suspect #{name} #{surname} not found in suspects file; cannot retry."
+    exit 1
+  end
+
+  puts "\nVerification result:"
+  puts JSON.pretty_generate(result[:verification] || result)
+  break
+end

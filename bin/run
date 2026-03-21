@@ -82,6 +82,16 @@ selected   = step('Selecting transport people') do
 end
 answer = answer_builder.call(selected)
 
+suspects_path = File.expand_path('../data/suspects.json', __dir__)
+step('Saving suspects to data/suspects.json') do
+  suspects_data = selected.map do |p|
+    { 'name' => p[:first_name].to_s, 'surname' => p[:last_name].to_s, 'born' => Integer(p[:born]) }
+  end
+  File.write(suspects_path, JSON.pretty_generate(suspects_data))
+  print "(#{suspects_data.size} suspects) "
+  suspects_data
+end
+
 puts "\n  Transport people:"
 selected.each { |p| puts "    #{p[:first_name]} #{p[:last_name]} (born #{p[:born]}) — #{p[:tags].join(', ')}" }
 

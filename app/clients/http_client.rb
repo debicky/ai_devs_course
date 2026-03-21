@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 module Clients
+  class HttpError < StandardError
+    attr_reader :response, :code, :body, :uri
+
+    def initialize(response, uri)
+      @response = response
+      @uri      = uri
+      @code     = response.code
+      @body     = response.body
+      super("HTTP #{@code} #{response.message} for #{uri}. Body: #{@body}")
+    end
+  end
+
   class HttpClient
     DEFAULT_OPEN_TIMEOUT = 10
     DEFAULT_READ_TIMEOUT = 60
@@ -30,13 +42,13 @@ module Clients
       http.read_timeout = @read_timeout
 
       req = request_class.new(uri)
-      headers.each { |k, v| req[k] = v }
+      headers.each { |key, value| req[key] = value }
       req.body = body if body
 
       response = http.request(req)
       return response if response.is_a?(Net::HTTPSuccess)
 
-      raise StandardError, "HTTP #{response.code} #{response.message} for #{url}. Body: #{response.body}"
+      raise HttpError.new(response, uri.to_s)
     end
   end
 end
