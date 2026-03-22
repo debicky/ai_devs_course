@@ -18,12 +18,12 @@ def optional_env(name)
   value.empty? ? nil : value
 end
 
-ag3nts_api_key  = required_env!('AG3NTS_API_KEY')
+required_env!('AG3NTS_API_KEY')
 openai_api_key  = required_env!('OPENAI_API_KEY')
 llm_model       = ENV.fetch('LLM_MODEL', DEFAULT_MODEL)
 
 http_client = Clients::HttpClient.new
-hub_client = Clients::HubClient.new(http_client: http_client, api_key: ag3nts_api_key)
+hub_client = Clients::HubClient.new(http_client: http_client)
 llm_client = Clients::LlmClient.new(
   http_client: http_client,
   api_key: openai_api_key,
@@ -110,17 +110,30 @@ end
 
 def remove_suspect_from_file(path, name:, surname:)
   data = JSON.parse(File.read(path))
-  raise ArgumentError, "Suspects file must be a JSON array" unless data.is_a?(Array)
+  raise ArgumentError, 'Suspects file must be a JSON array' unless data.is_a?(Array)
 
   before = data.size
-  data.reject! { |entry| entry['name'].to_s.strip == name.to_s.strip && entry['surname'].to_s.strip == surname.to_s.strip }
+  data.reject! do |entry|
+    entry['name'].to_s.strip == name.to_s.strip && entry['surname'].to_s.strip == surname.to_s.strip
+  end
   removed = before - data.size
   File.write(path, JSON.pretty_generate(data))
   removed
 end
 
+# curl -X POST https://hub.ag3nts.org/verify \
+#   -H 'Content-Type: application/json' \
+#   -d '{
+#     "apikey":"6da23c55-16c6-4ed8-854c-3daa3ffacce6",
+#     "task":"proxy",
+#     "answer":{
+#       "url":"https://051b-188-33-34-34.ngrok-free.app/",
+#       "sessionID":"proxytest2026"
+#     }
+#   }'
+
 # --- Run ---
-puts "Suspects: data/suspects.json (from people task output; run bin/run first to populate)"
+puts 'Suspects: data/suspects.json (from people task output; run bin/run first to populate)'
 step('Loading suspects') do
   suspects_loader.call.tap { |s| print "(#{s.size} suspects) " }
 end
@@ -156,13 +169,13 @@ loop do
     puts "\n  Verify rejected answer (server: check name, surname, access level, power plant code):"
     puts "    Submitted: #{submitted.inspect}"
     puts "    Error: #{result[:error]}"
-    puts "  Optional: remove this suspect and retry? The failure might be wrong access level or plant code, not the person."
+    puts '  Optional: remove this suspect and retry? The failure might be wrong access level or plant code, not the person.'
     removed = remove_suspect_from_file(SUSPECTS_PATH, name: name, surname: surname)
     if removed.positive?
       puts "  Removed #{name} #{surname} from data/suspects.json (#{removed} entry), retrying..."
       remaining = JSON.parse(File.read(SUSPECTS_PATH)).size
       if remaining.zero?
-        puts "  No suspects left in data/suspects.json; cannot retry."
+        puts '  No suspects left in data/suspects.json; cannot retry.'
         exit 1
       end
       next

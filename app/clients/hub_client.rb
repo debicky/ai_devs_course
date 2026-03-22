@@ -9,9 +9,9 @@ module Clients
     ACCESS_LEVEL_PATH    = '/api/accesslevel'
     VERIFY_PATH          = '/verify'
 
-    def initialize(http_client:, api_key:)
+    def initialize(http_client:)
       @http_client = http_client
-      @api_key     = api_key
+      @api_key     = fetch_api_key
     end
 
     def fetch_people_csv
@@ -52,6 +52,15 @@ module Clients
       payload = { apikey: @api_key, task: task, answer: answer }
       response = @http_client.post_json("#{BASE_URL}#{VERIFY_PATH}", payload: payload)
       JSON.parse(response.body)
+    end
+
+    private
+
+    def fetch_api_key
+      value = ENV['AG3NTS_API_KEY'].to_s.strip
+      raise ArgumentError, 'Missing required environment variable: AG3NTS_API_KEY' if value.empty?
+
+      value
     end
   end
 end

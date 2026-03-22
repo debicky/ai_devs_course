@@ -5,3 +5,4 @@ source 'https://rubygems.org'
 gem 'dotenv'
 gem 'pry'
 gem 'rubocop', require: false
+gem 'webrick'

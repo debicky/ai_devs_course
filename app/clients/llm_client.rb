@@ -41,7 +41,21 @@ module Clients
       end
       # gpt-5-mini / gpt-5.4-nano: omit temperature so API uses its default
 
-      parsed  = post_chat(payload)
+      normalize_chat_response(post_chat(payload))
+    end
+
+    def chat(messages:, temperature: nil)
+      payload = { model: @model, messages: messages }
+      unless omit_temperature?
+        payload[:temperature] = temperature.nil? ? 0 : temperature
+      end
+
+      normalize_chat_response(post_chat(payload))
+    end
+
+    private
+
+    def normalize_chat_response(parsed)
       message = parsed.dig('choices', 0, 'message')
       raise ArgumentError, "LLM response missing message: #{parsed}" if message.nil?
 
@@ -51,8 +65,6 @@ module Clients
         'tool_calls' => Array(message['tool_calls'])
       }
     end
-
-    private
 
     def omit_temperature?
       m = @model.to_s

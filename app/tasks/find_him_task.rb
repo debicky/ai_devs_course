@@ -4,7 +4,7 @@ module Tasks
   class FindHimTask
     MAX_ITERATIONS = 15
     TASK_NAME = 'findhim'
-    SYSTEM_PROMPT = <<~TEXT.freeze
+    SYSTEM_PROMPT = <<~TEXT
       You are solving the AG3NTS task "findhim". Use only these four tools in order.
 
       Step 1: Call get_suspects once. You get a list of suspects (name, surname, born).
@@ -35,12 +35,14 @@ module Tasks
       MAX_ITERATIONS.times do |i|
         iteration = i + 1
         if only_closest_plant_count >= 2
-          messages << { role: 'user', content: 'You have already called get_closest_plant_for_suspect for all suspects. Look at the tool results above: if they have closestPlantCode and distanceKm, pick the suspect with smallest distanceKm, call get_access_level for that person, then submit_answer with name, surname, accessLevel, and that closestPlantCode. If the results have "error" only, do not call get_closest_plant_for_suspect again — reply in text that plant coordinates are missing.' }
+          messages << { role: 'user',
+                        content: 'You have already called get_closest_plant_for_suspect for all suspects. Look at the tool results above: if they have closestPlantCode and distanceKm, pick the suspect with smallest distanceKm, call get_access_level for that person, then submit_answer with name, surname, accessLevel, and that closestPlantCode. If the results have "error" only, do not call get_closest_plant_for_suspect again — reply in text that plant coordinates are missing.' }
           only_closest_plant_count = 0
         end
 
         if submit_rejected_last_turn
-          messages << { role: 'user', content: 'submit_answer was rejected. Your next message MUST be tool calls: call submit_answer again with the exact closestPlantCode from the get_closest_plant_for_suspect result for your chosen suspect. If you do not have it, call get_closest_plant_for_suspect for that suspect once, then submit_answer with that exact result. Do not reply with text only.' }
+          messages << { role: 'user',
+                        content: 'submit_answer was rejected. Your next message MUST be tool calls: call submit_answer again with the exact closestPlantCode from the get_closest_plant_for_suspect result for your chosen suspect. If you do not have it, call get_closest_plant_for_suspect for that suspect once, then submit_answer with that exact result. Do not reply with text only.' }
           submit_rejected_last_turn = false
         end
 
@@ -52,7 +54,8 @@ module Tasks
         tool_calls = Array(response['tool_calls'])
         if tool_calls.empty? && submit_rejected_last_turn
           # If model replies with no tool calls after rejection, retry immediately with nudge
-          messages << { role: 'user', content: 'You just had a submit_answer rejection and replied with no tool calls. You must call submit_answer again with the exact closestPlantCode. Do not reply with text only.' }
+          messages << { role: 'user',
+                        content: 'You just had a submit_answer rejection and replied with no tool calls. You must call submit_answer again with the exact closestPlantCode. Do not reply with text only.' }
           submit_rejected_last_turn = false
           response = @llm_client.chat_with_tools(messages: messages, tools: tool_definitions)
           messages << assistant_message(response)
@@ -82,7 +85,7 @@ module Tasks
         return submit_result if submit_result
       end
 
-      raise RuntimeError, "FindHim agent exceeded #{MAX_ITERATIONS} iterations without submitting an answer"
+      raise "FindHim agent exceeded #{MAX_ITERATIONS} iterations without submitting an answer"
     end
 
     private

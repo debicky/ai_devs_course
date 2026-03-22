@@ -58,3 +58,7 @@ build-iPhoneSimulator/
 # JetBrains IDE files
 /.idea/
 *.iml
+
+# Proxy session storage
+/data/proxy_sessions/
+

@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../config/environment'
+
+DEFAULT_MODEL = 'gpt-4o-mini'
+DEFAULT_PORT = 3000
+SESSIONS_DIRECTORY = File.expand_path('../data/proxy_sessions', __dir__)
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+required_env!('AG3NTS_API_KEY')
+openai_api_key = required_env!('OPENAI_API_KEY')
+llm_model = ENV.fetch('LLM_MODEL', DEFAULT_MODEL)
+port = Integer(ENV.fetch('PORT', DEFAULT_PORT.to_s))
+
+http_client = Clients::HttpClient.new
+llm_client = Clients::LlmClient.new(
+  http_client: http_client,
+  api_key: openai_api_key,
+  model: llm_model,
+  base_url: Clients::LlmClient::OPENAI_BASE_URL
+)
+packages_client = Clients::PackagesClient.new(
+  http_client: http_client
+)
+session_store = Services::Proxy::SessionStore.new(directory: SESSIONS_DIRECTORY)
+tool_executor = Services::Proxy::ToolExecutor.new(packages_client: packages_client)
+conversation_runner = Services::Proxy::ConversationRunner.new(
+  llm_client: llm_client,
+  tool_executor: tool_executor,
+  session_store: session_store
+)
+http_server = Services::Proxy::HttpServer.new(
+  conversation_runner: conversation_runner,
+  port: port
+)
+
+task = Tasks::ProxyTask.new(http_server: http_server)
+
+puts "→ Starting proxy server on port #{port}"
+puts "→ Session storage: #{SESSIONS_DIRECTORY}"
+puts '→ POST JSON to / with: {"sessionID":"...","msg":"..."}'
+
+task.call

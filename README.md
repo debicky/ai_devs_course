@@ -6,6 +6,7 @@ Lesson mapping:
 
 - Lesson 1: `bin/run` (`people`)
 - Lesson 2: `bin/find_him` (`findhim`)
+- Lesson 3: `bin/proxy` (`proxy`)
 
 ## Structure
 
@@ -13,6 +14,7 @@ Lesson mapping:
 bin/
   run                             # Lesson 1: people task entrypoint
   find_him                        # Lesson 2: findhim task entrypoint
+  proxy                           # Lesson 3: proxy HTTP server entrypoint
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -20,6 +22,7 @@ app/
     http_client.rb                # shared Net::HTTP wrapper
     hub_client.rb                 # AG3NTS Hub API client
     llm_client.rb                 # LLM JSON schema + tool-calling client
+    packages_client.rb            # package API client
   services/
     people/
       csv_parser.rb
@@ -31,11 +34,18 @@ app/
       suspects_loader.rb          # load suspects from local JSON
       distance_calculator.rb      # Haversine distance
       tool_executor.rb            # executes LLM-requested tools
+    proxy/
+      session_store.rb            # per-session memory on disk
+      tool_executor.rb            # package tools requested by the LLM
+      conversation_runner.rb      # bounded function-calling loop
+      http_server.rb              # local JSON endpoint
   tasks/
     people_task.rb
     find_him_task.rb
+    proxy_task.rb
 data/
   suspects.json                   # suspects from previous task output
+  proxy_sessions/                 # generated session history, gitignored
 ```
 
 ## Environment variables
@@ -60,6 +70,10 @@ Model selection stays in each run file. You can override it temporarily with `LL
 - `bin/find_him`
   - requires `AG3NTS_API_KEY`
   - requires `OPENAI_API_KEY`
+- `bin/proxy`
+  - requires `AG3NTS_API_KEY`
+  - requires `OPENAI_API_KEY`
+  - optional `PORT` (default `3000`)
 
 ## Lesson 1 / Task 1: `people` (`bin/run`)
 
@@ -106,6 +120,94 @@ Run it with:
 bin/find_him
 ```
 
+## Lesson 3 / Task 3: `proxy` (`bin/proxy`)
+
+This task starts a local HTTP endpoint for a transparent logistics assistant.
+
+What `bin/proxy` does:
+
+1. starts a local HTTP server
+2. accepts `POST /` JSON requests with `sessionID` and `msg`
+3. keeps separate conversation history per session in `data/proxy_sessions/`
+4. uses an LLM with function calling
+5. can check package status and redirect a package exactly to the operator-requested destination
+6. returns JSON only in the form `{ "msg": "..." }`
+
+Run it with:
+
+```bash
+chmod +x bin/proxy
+bin/proxy
+```
+
+You can override the port:
+
+```bash
+PORT=4000 bin/proxy
+```
+
+Request format:
+
+```json
+{
+  "sessionID": "demo-1",
+  "msg": "Sprawdź paczkę PKG12345678"
+}
+```
+
+Response format:
+
+```json
+{
+  "msg": "Już sprawdzam status tej paczki."
+}
+```
+
+Example local request:
+
+```bash
+curl -X POST http://localhost:3000/ \
+  -H 'Content-Type: application/json' \
+  -d '{"sessionID":"demo-1","msg":"Sprawdź paczkę PKG12345678"}'
+```
+
+For public testing, you can expose the local server with a tunnel such as `ngrok`.
+
+### Debugging package API issues
+
+If package checks or redirects return unexpected results, test the external package API directly to distinguish:
+
+- invalid package ID or redirect code
+- external API behavior
+- bug in your app
+
+Conceptually, compare the direct API response with the logs from `bin/proxy`.
+
+Check example:
+
+```bash
+curl -X POST https://hub.ag3nts.org/api/packages \
+  -H 'Content-Type: application/json' \
+  -d '{"apikey":"YOUR_AG3NTS_API_KEY","action":"check","packageid":"PKG12345678"}'
+```
+
+Redirect example:
+
+```bash
+curl -X POST https://hub.ag3nts.org/api/packages \
+  -H 'Content-Type: application/json' \
+  -d '{"apikey":"YOUR_AG3NTS_API_KEY","action":"redirect","packageid":"PKG12345678","destination":"PWR3847PL","code":"YOUR_CODE"}'
+```
+
+The proxy logs now include:
+
+- tool-call arguments (`packageid`, `destination`, `code`)
+- package API action name
+- outbound payload with redacted `apikey`
+- raw response body from the external API
+
+This makes it easier to verify whether the model changed arguments or whether the external API rejected valid-looking test data.
+
 ### `data/suspects.json`
 
 You usually do not need to create this file manually anymore, because `bin/run` writes it for you.
@@ -133,10 +235,20 @@ bin/run
 bin/find_him
 ```
 
+## Run the proxy server
+
+```bash
+bundle install
+chmod +x bin/proxy
+bin/proxy
+```
+
 ## Notes
 
 - `people` uses one batch LLM classification request with structured JSON schema output.
 - `findhim` intentionally uses Function Calling, with the model choosing which tool to call next.
+- `proxy` also uses Function Calling, but only for transparent package operations (`check_package` and `redirect_package`).
 - `bin/run` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.
+- `proxy` keeps per-session history in `data/proxy_sessions/`, which is ignored by git.

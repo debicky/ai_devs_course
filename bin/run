@@ -19,7 +19,7 @@ def optional_env(name)
 end
 
 # --- Env ---
-ag3nts_api_key = required_env!('AG3NTS_API_KEY')
+required_env!('AG3NTS_API_KEY')
 
 gemini_api_key = optional_env('GEMINI_API_KEY')
 
@@ -35,7 +35,7 @@ llm_model = optional_env('LLM_MODEL') || default_model
 
 # --- Wire dependencies ---
 http_client = Clients::HttpClient.new
-hub_client  = Clients::HubClient.new(http_client: http_client, api_key: ag3nts_api_key)
+hub_client  = Clients::HubClient.new(http_client: http_client)
 llm_client  = Clients::LlmClient.new(
   http_client: http_client,
   api_key: llm_api_key,

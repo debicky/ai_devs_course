@@ -147,16 +147,14 @@ module Services
         return @access_level_cache[key] if @access_level_cache.key?(key)
 
         raw = @hub_client.fetch_access_level(name: name, surname: surname, birth_year: birth_year)
-        if raw.is_a?(Hash) && raw.key?('error')
-          return { error: raw['error'].to_s }
-        end
+        return { error: raw['error'].to_s } if raw.is_a?(Hash) && raw.key?('error')
 
         result = { accessLevel: extract_access_level(raw) }
         @access_level_cache[key] = result
         result
       end
 
-      POWER_PLANT_FORMAT = /\APWR\d{4}[A-Z]{2}\z/
+      POWER_PLANT_FORMAT = /\APWR\d{4}[A-Z]{2}\z/.freeze
 
       def submit_answer(arguments)
         name = fetch_string(arguments, 'name')
@@ -276,7 +274,9 @@ module Services
       def coords_from_plant(plant)
         keys_lat = %w[latitude lat]
         keys_lon = %w[longitude lon lng]
-        return [fetch_float_from_hash(plant, keys_lat), fetch_float_from_hash(plant, keys_lon)] if hash_has_coord?(plant, keys_lat) && hash_has_coord?(plant, keys_lon)
+        return [fetch_float_from_hash(plant, keys_lat), fetch_float_from_hash(plant, keys_lon)] if hash_has_coord?(
+          plant, keys_lat
+        ) && hash_has_coord?(plant, keys_lon)
 
         nested = plant['location'] || plant['coordinates'] || plant['coord'] || plant['position'] || plant['geo']
         return [nil, nil] unless nested.is_a?(Hash)
@@ -294,7 +294,8 @@ module Services
         keys.any? { |k| hash.key?(k) && hash[k].to_s.strip != '' }
       end
 
-      NORMALIZE_PL = { 'ą' => 'a', 'ć' => 'c', 'ę' => 'e', 'ł' => 'l', 'ń' => 'n', 'ó' => 'o', 'ś' => 's', 'ź' => 'z', 'ż' => 'z' }.freeze
+      NORMALIZE_PL = { 'ą' => 'a', 'ć' => 'c', 'ę' => 'e', 'ł' => 'l', 'ń' => 'n', 'ó' => 'o', 'ś' => 's', 'ź' => 'z',
+                       'ż' => 'z' }.freeze
 
       def resolve_suspect_name(name, surname)
         suspects = @suspects_loader.call
