@@ -9,6 +9,15 @@ Lesson mapping:
 - Lesson 3: `bin/proxy` (`proxy`)
 - Lesson 4: `bin/sendit` (`sendit`)
 
+## Lesson notes
+
+Source lesson markdowns are stored in `docs/lessons/` for quick reference:
+
+- Lesson 1 / `people` / `bin/run` → [`docs/lessons/lesson-01-people.md`](docs/lessons/lesson-01-people.md)
+- Lesson 2 / `findhim` / `bin/find_him` → [`docs/lessons/lesson-02-find-him.md`](docs/lessons/lesson-02-find-him.md)
+- Lesson 3 / `proxy` / `bin/proxy` → [`docs/lessons/lesson-03-proxy.md`](docs/lessons/lesson-03-proxy.md)
+- Lesson 4 / `sendit` / `bin/sendit` → [`docs/lessons/lesson-04-sendit.md`](docs/lessons/lesson-04-sendit.md)
+
 ## Structure
 
 ```text
@@ -17,6 +26,12 @@ bin/
   find_him                        # Lesson 2: findhim task entrypoint
   proxy                           # Lesson 3: proxy HTTP server entrypoint
   sendit                          # Lesson 4: sendit declaration entrypoint
+docs/
+  lessons/
+    lesson-01-people.md           # lesson note / source material
+    lesson-02-find-him.md         # lesson note / source material
+    lesson-03-proxy.md            # lesson note / source material
+    lesson-04-sendit.md           # lesson note / source material
 config/
   environment.rb                  # bootstrap and require order
 app/
