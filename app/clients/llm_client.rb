@@ -66,6 +66,7 @@ module Clients
       }
     end
 
+
     def omit_temperature?
       m = @model.to_s
       m.include?('gpt-5-mini') || m.include?('gpt-5.4-nano')
