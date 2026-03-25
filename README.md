@@ -17,6 +17,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 2 / `findhim` / `bin/find_him` → [`docs/lessons/lesson-02-find-him.md`](docs/lessons/lesson-02-find-him.md)
 - Lesson 3 / `proxy` / `bin/proxy` → [`docs/lessons/lesson-03-proxy.md`](docs/lessons/lesson-03-proxy.md)
 - Lesson 4 / `sendit` / `bin/sendit` → [`docs/lessons/lesson-04-sendit.md`](docs/lessons/lesson-04-sendit.md)
+- Lesson 5 / `railway` / source material only → [`docs/lessons/lesson-05-railway.md`](docs/lessons/lesson-05-railway.md)
 
 ## Structure
 
@@ -32,6 +33,7 @@ docs/
     lesson-02-find-him.md         # lesson note / source material
     lesson-03-proxy.md            # lesson note / source material
     lesson-04-sendit.md           # lesson note / source material
+    lesson-05-railway.md          # lesson note / source material
 config/
   environment.rb                  # bootstrap and require order
 app/
