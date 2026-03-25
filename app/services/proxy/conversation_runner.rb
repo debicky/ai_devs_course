@@ -139,7 +139,7 @@ module Services
         return nil if intent.nil?
 
         package_id = arguments['packageid'].to_s.strip
-        destination = arguments['destination'].to_s.strip
+        arguments['destination'].to_s.strip
 
         if intent[:packageid] && package_id != intent[:packageid]
           return "redirect_package must use the exact operator-requested packageid #{intent[:packageid].inspect}, not #{package_id.inspect}"
@@ -236,4 +236,3 @@ module Services
     end
   end
 end
-

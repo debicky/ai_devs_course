@@ -7,6 +7,7 @@ require 'dotenv/load' if Gem.loaded_specs.key?('dotenv')
 require 'pry' if Gem.loaded_specs.key?('pry')
 
 require 'csv'
+require 'date'
 require 'json'
 require 'net/http'
 require 'uri'
@@ -36,7 +37,12 @@ require_relative '../app/services/proxy/tool_executor'
 require_relative '../app/services/proxy/conversation_runner'
 require_relative '../app/services/proxy/http_server'
 
+# Services::SendIt
+require_relative '../app/services/send_it/documentation_explorer'
+require_relative '../app/services/send_it/declaration_builder'
+
 # Tasks
 require_relative '../app/tasks/people_task'
 require_relative '../app/tasks/find_him_task'
 require_relative '../app/tasks/proxy_task'
+require_relative '../app/tasks/sendit_task'

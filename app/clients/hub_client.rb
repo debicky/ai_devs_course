@@ -3,6 +3,7 @@
 module Clients
   class HubClient
     BASE_URL             = 'https://hub.ag3nts.org'
+    DOCS_BASE_PATH       = '/dane/doc/'
     PEOPLE_PATH          = '/data/%<api_key>s/people.csv'
     FIND_HIM_PATH        = '/data/%<api_key>s/findhim_locations.json'
     LOCATION_PATH        = '/api/location'
@@ -17,6 +18,15 @@ module Clients
     def fetch_people_csv
       path = format(PEOPLE_PATH, api_key: @api_key)
       @http_client.get("#{BASE_URL}#{path}").body
+    end
+
+    def fetch_spk_document(path:)
+      @http_client.get(spk_document_url(path)).body
+    end
+
+    def spk_document_url(path)
+      normalized_path = path.to_s.sub(%r{\A/+}, '')
+      "#{BASE_URL}#{DOCS_BASE_PATH}#{normalized_path}"
     end
 
     def fetch_find_him_locations

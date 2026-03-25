@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../config/environment'
+
+DEFAULT_MODEL = 'gpt-4o-mini'
+OPEN_TIMEOUT = 30
+READ_TIMEOUT = 120
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+def step(label)
+  print "→ #{label}... "
+  result = yield
+  puts 'done'
+  result
+end
+
+required_env!('AG3NTS_API_KEY')
+openai_api_key = required_env!('OPENAI_API_KEY')
+llm_model = ENV.fetch('LLM_MODEL', DEFAULT_MODEL)
+
+http_client = Clients::HttpClient.new(open_timeout: OPEN_TIMEOUT, read_timeout: READ_TIMEOUT)
+hub_client = Clients::HubClient.new(http_client: http_client)
+llm_client = Clients::LlmClient.new(
+  http_client: http_client,
+  api_key: openai_api_key,
+  model: llm_model,
+  base_url: Clients::LlmClient::OPENAI_BASE_URL
+)
+documentation_explorer = Services::SendIt::DocumentationExplorer.new(
+  hub_client: hub_client,
+  llm_client: llm_client
+)
+declaration_builder = Services::SendIt::DeclarationBuilder.new
+
+task = Tasks::SenditTask.new(
+  hub_client: hub_client,
+  documentation_explorer: documentation_explorer,
+  declaration_builder: declaration_builder
+)
+
+result = step('Running sendit task') { task.call }
+
+documents = result.fetch(:documents)
+puts "  Discovered docs: #{documents.keys.sort.join(', ')}"
+puts
+puts 'Declaration:'
+puts result.fetch(:declaration)
+puts
+puts 'Verification result:'
+puts JSON.pretty_generate(result.fetch(:verification))

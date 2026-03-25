@@ -6,6 +6,11 @@ module Clients
     GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai'
     CHAT_PATH       = '/v1/chat/completions'
     MAX_RETRIES     = 3
+    IMAGE_OCR_PROMPT = <<~TEXT
+      Extract the text from this image as faithfully as possible.
+      Keep original ordering and labels.
+      Return plain text only.
+    TEXT
 
     TAG_DESCRIPTIONS = {
       'IT' => 'software, programming, computers, IT systems',
@@ -53,6 +58,30 @@ module Clients
       normalize_chat_response(post_chat(payload))
     end
 
+    def extract_text_from_image(image_url:, prompt: IMAGE_OCR_PROMPT)
+      payload = {
+        model: @model,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: prompt },
+              { type: 'image_url', image_url: { url: image_url } }
+            ]
+          }
+        ]
+      }
+      payload = payload.merge(temperature: 0) unless omit_temperature?
+
+      parsed = post_chat(payload)
+      content = parsed.dig('choices', 0, 'message', 'content')
+      text = extract_text_content(content)
+
+      raise ArgumentError, "LLM image extraction returned no text for #{image_url}" if text.empty?
+
+      text
+    end
+
     private
 
     def normalize_chat_response(parsed)
@@ -61,11 +90,22 @@ module Clients
 
       {
         'role' => message['role'] || 'assistant',
-        'content' => message['content'],
+        'content' => extract_text_content(message['content']),
         'tool_calls' => Array(message['tool_calls'])
       }
     end
 
+    def extract_text_content(content)
+      return content.to_s if content.is_a?(String)
+      return '' if content.nil?
+
+      Array(content).filter_map do |part|
+        next unless part.is_a?(Hash)
+        next if part['type'] != 'text'
+
+        part['text'].to_s
+      end.join
+    end
 
     def omit_temperature?
       m = @model.to_s

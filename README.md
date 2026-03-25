@@ -7,6 +7,7 @@ Lesson mapping:
 - Lesson 1: `bin/run` (`people`)
 - Lesson 2: `bin/find_him` (`findhim`)
 - Lesson 3: `bin/proxy` (`proxy`)
+- Lesson 4: `bin/sendit` (`sendit`)
 
 ## Structure
 
@@ -15,6 +16,7 @@ bin/
   run                             # Lesson 1: people task entrypoint
   find_him                        # Lesson 2: findhim task entrypoint
   proxy                           # Lesson 3: proxy HTTP server entrypoint
+  sendit                          # Lesson 4: sendit declaration entrypoint
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -39,10 +41,14 @@ app/
       tool_executor.rb            # package tools requested by the LLM
       conversation_runner.rb      # bounded function-calling loop
       http_server.rb              # local JSON endpoint
+    send_it/
+      documentation_explorer.rb   # recursive SPK docs discovery with image OCR
+      declaration_builder.rb      # derive and fill the declaration form
   tasks/
     people_task.rb
     find_him_task.rb
     proxy_task.rb
+    sendit_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -74,6 +80,9 @@ Model selection stays in each run file. You can override it temporarily with `LL
   - requires `AG3NTS_API_KEY`
   - requires `OPENAI_API_KEY`
   - optional `PORT` (default `3000`)
+- `bin/sendit`
+  - requires `AG3NTS_API_KEY`
+  - requires `OPENAI_API_KEY`
 
 ## Lesson 1 / Task 1: `people` (`bin/run`)
 
@@ -208,6 +217,33 @@ The proxy logs now include:
 
 This makes it easier to verify whether the model changed arguments or whether the external API rejected valid-looking test data.
 
+## Lesson 4 / Task 4: `sendit` (`bin/sendit`)
+
+This task generates the SPK transport declaration for the `sendit` challenge and submits it to `/verify`.
+
+What `bin/sendit` does:
+
+1. fetches the public SPK documentation index
+2. recursively follows linked markdown and `[include file="..."]` attachments
+3. uses a vision-capable LLM path for image attachments like `trasy-wylaczone.png`
+4. extracts the exact declaration template from `zalacznik-E.md`
+5. finds the blocked route code for `Gdańsk -> Żarnowiec`
+6. fills the declaration with the required sender, weight, content, WDP, and zero-cost amount
+7. sends `{ "declaration": "..." }` to `/verify` for task `sendit`
+
+Run it with:
+
+```bash
+chmod +x bin/sendit
+bin/sendit
+```
+
+Notes:
+
+- `bin/sendit` keeps model selection in the file itself and defaults to `gpt-4o-mini`.
+- The declaration is printed before verification so you can inspect the final paper-form string.
+- The implementation derives the Żarnowiec route from the documentation instead of hardcoding the route code.
+
 ### `data/suspects.json`
 
 You usually do not need to create this file manually anymore, because `bin/run` writes it for you.
@@ -235,6 +271,14 @@ bin/run
 bin/find_him
 ```
 
+## Run the sendit task
+
+```bash
+bundle install
+chmod +x bin/sendit
+bin/sendit
+```
+
 ## Run the proxy server
 
 ```bash
@@ -248,6 +292,7 @@ bin/proxy
 - `people` uses one batch LLM classification request with structured JSON schema output.
 - `findhim` intentionally uses Function Calling, with the model choosing which tool to call next.
 - `proxy` also uses Function Calling, but only for transparent package operations (`check_package` and `redirect_package`).
+- `sendit` uses recursive document discovery plus image text extraction to reconstruct the exact declaration string from the SPK docs.
 - `bin/run` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.
