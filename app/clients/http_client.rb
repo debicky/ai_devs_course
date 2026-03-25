@@ -32,9 +32,14 @@ module Clients
       request(url, Net::HTTP::Post, headers: req_headers, body: JSON.generate(payload))
     end
 
+    def post_json_raw(url, payload:, headers: {})
+      req_headers = headers.merge('Content-Type' => JSON_CONTENT_TYPE)
+      request(url, Net::HTTP::Post, headers: req_headers, body: JSON.generate(payload), raise_on_error: false)
+    end
+
     private
 
-    def request(url, request_class, headers:, body: nil)
+    def request(url, request_class, headers:, body: nil, raise_on_error: true)
       uri  = URI(url)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl      = uri.scheme == 'https'
@@ -46,7 +51,7 @@ module Clients
       req.body = body if body
 
       response = http.request(req)
-      return response if response.is_a?(Net::HTTPSuccess)
+      return response if response.is_a?(Net::HTTPSuccess) || !raise_on_error
 
       raise HttpError.new(response, uri.to_s)
     end

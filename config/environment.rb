@@ -41,8 +41,12 @@ require_relative '../app/services/proxy/http_server'
 require_relative '../app/services/send_it/documentation_explorer'
 require_relative '../app/services/send_it/declaration_builder'
 
+# Services::Railway
+require_relative '../app/services/railway/runner'
+
 # Tasks
 require_relative '../app/tasks/people_task'
 require_relative '../app/tasks/find_him_task'
 require_relative '../app/tasks/proxy_task'
 require_relative '../app/tasks/sendit_task'
+require_relative '../app/tasks/railway_task'

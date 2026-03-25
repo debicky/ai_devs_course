@@ -8,6 +8,7 @@ Lesson mapping:
 - Lesson 2: `bin/find_him` (`findhim`)
 - Lesson 3: `bin/proxy` (`proxy`)
 - Lesson 4: `bin/sendit` (`sendit`)
+- Lesson 5: `bin/railway` (`railway`)
 
 ## Lesson notes
 
@@ -17,7 +18,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 2 / `findhim` / `bin/find_him` → [`docs/lessons/lesson-02-find-him.md`](docs/lessons/lesson-02-find-him.md)
 - Lesson 3 / `proxy` / `bin/proxy` → [`docs/lessons/lesson-03-proxy.md`](docs/lessons/lesson-03-proxy.md)
 - Lesson 4 / `sendit` / `bin/sendit` → [`docs/lessons/lesson-04-sendit.md`](docs/lessons/lesson-04-sendit.md)
-- Lesson 5 / `railway` / source material only → [`docs/lessons/lesson-05-railway.md`](docs/lessons/lesson-05-railway.md)
+- Lesson 5 / `railway` / `bin/railway` → [`docs/lessons/lesson-05-railway.md`](docs/lessons/lesson-05-railway.md)
 
 ## Structure
 
@@ -27,6 +28,7 @@ bin/
   find_him                        # Lesson 2: findhim task entrypoint
   proxy                           # Lesson 3: proxy HTTP server entrypoint
   sendit                          # Lesson 4: sendit declaration entrypoint
+  railway                         # Lesson 5: railway task entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -61,11 +63,14 @@ app/
     send_it/
       documentation_explorer.rb   # recursive SPK docs discovery with image OCR
       declaration_builder.rb      # derive and fill the declaration form
+    railway/
+      runner.rb                   # resilient railway API state machine
   tasks/
     people_task.rb
     find_him_task.rb
     proxy_task.rb
     sendit_task.rb
+    railway_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -100,6 +105,8 @@ Model selection stays in each run file. You can override it temporarily with `LL
 - `bin/sendit`
   - requires `AG3NTS_API_KEY`
   - requires `OPENAI_API_KEY`
+- `bin/railway`
+  - requires `AG3NTS_API_KEY`
 
 ## Lesson 1 / Task 1: `people` (`bin/run`)
 
@@ -261,6 +268,34 @@ Notes:
 - The declaration is printed before verification so you can inspect the final paper-form string.
 - The implementation derives the Żarnowiec route from the documentation instead of hardcoding the route code.
 
+## Lesson 5 / Task 5: `railway` (`bin/railway`)
+
+This task interacts with the self-documenting railway API and activates route `X-01`.
+
+What `bin/railway` does:
+
+1. starts with `action: "help"`
+2. validates the returned action list
+3. checks the current status of route `X-01`
+4. enters reconfigure mode if needed
+5. sets the route status to `RTOPEN`
+6. saves the configuration and waits for the flag response
+7. logs every request, response body, and response header for debugging
+8. automatically handles `503` with exponential backoff and respects the strict request window / retry headers
+
+Run it with:
+
+```bash
+chmod +x bin/railway
+bin/railway
+```
+
+Notes:
+
+- `bin/railway` does not require an LLM.
+- The API is intentionally unstable and aggressively rate-limited, so the runner is conservative and may wait between calls.
+- The task is complete only when the response contains a flag like `{FLG:...}`.
+
 ### `data/suspects.json`
 
 You usually do not need to create this file manually anymore, because `bin/run` writes it for you.
@@ -296,6 +331,14 @@ chmod +x bin/sendit
 bin/sendit
 ```
 
+## Run the railway task
+
+```bash
+bundle install
+chmod +x bin/railway
+bin/railway
+```
+
 ## Run the proxy server
 
 ```bash
@@ -310,6 +353,7 @@ bin/proxy
 - `findhim` intentionally uses Function Calling, with the model choosing which tool to call next.
 - `proxy` also uses Function Calling, but only for transparent package operations (`check_package` and `redirect_package`).
 - `sendit` uses recursive document discovery plus image text extraction to reconstruct the exact declaration string from the SPK docs.
+- `railway` uses a deterministic state machine with raw header logging, exponential backoff for `503`, and cooldown handling for the API's strict limits.
 - `bin/run` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.

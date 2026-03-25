@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../config/environment'
+
+OPEN_TIMEOUT = 30
+READ_TIMEOUT = 120
+
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+def step(label)
+  print "→ #{label}... "
+  result = yield
+  puts 'done'
+  result
+end
+
+required_env!('AG3NTS_API_KEY')
+
+http_client = Clients::HttpClient.new(open_timeout: OPEN_TIMEOUT, read_timeout: READ_TIMEOUT)
+hub_client = Clients::HubClient.new(http_client: http_client)
+runner = Services::Railway::Runner.new(hub_client: hub_client)
+task = Tasks::RailwayTask.new(runner: runner)
+
+result = step('Running railway task') { task.call }
+
+puts
+puts 'Verification result:'
+puts JSON.pretty_generate(result.fetch(:verification))
+puts
+puts "Flag: #{result.fetch(:flag)}"
+

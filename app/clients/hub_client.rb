@@ -64,6 +64,11 @@ module Clients
       JSON.parse(response.body)
     end
 
+    def verify_raw(task:, answer:)
+      payload = { apikey: @api_key, task: task, answer: answer }
+      @http_client.post_json_raw("#{BASE_URL}#{VERIFY_PATH}", payload: payload)
+    end
+
     private
 
     def fetch_api_key
