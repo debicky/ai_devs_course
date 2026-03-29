@@ -58,8 +58,11 @@ require_relative '../app/s02/services/failure/runner'
 require_relative '../app/s02/services/mailbox/tool_executor'
 require_relative '../app/s02/services/mailbox/runner'
 
+require_relative '../app/s02/services/drone/runner'
+
 # S02 — Week 2 Tasks
 require_relative '../app/s02/tasks/categorize_task'
 require_relative '../app/s02/tasks/electricity_task'
 require_relative '../app/s02/tasks/mailbox_task'
 require_relative '../app/s02/tasks/failure_task'
+require_relative '../app/s02/tasks/drone_task'

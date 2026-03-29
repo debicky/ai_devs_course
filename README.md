@@ -18,6 +18,7 @@ Lesson mapping:
 - Lesson 7: `bin/week_2/electricity_7` (`electricity`)
 - Lesson 8: `bin/week_2/failure_8` (`failure`)
 - Lesson 9: `bin/week_2/mailbox_9` (`mailbox`) — **`{FLG:TRAITOR}`**
+- Lesson 10: `bin/week_2/drone_10` (`drone`) — **`{FLG:LETSFLY}`**
 
 ## Lesson notes
 
@@ -32,6 +33,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 7 / `electricity` / `bin/week_2/electricity_7` → [`docs/lessons/lesson-07-electricity.md`](docs/lessons/lesson-07-electricity.md)
 - Lesson 8 / `failure` / `bin/week_2/failure_8` → [`docs/lessons/lesson-08-failure.md`](docs/lessons/lesson-08-failure.md)
 - Lesson 9 / `mailbox` / `bin/week_2/mailbox_9` → [`docs/lessons/lesson-09-mailbox.md`](docs/lessons/lesson-09-mailbox.md)
+- Lesson 10 / `drone` / `bin/week_2/drone_10` → [`docs/lessons/lesson-10-drone.md`](docs/lessons/lesson-10-drone.md)
 
 ## Structure
 
@@ -58,6 +60,7 @@ docs/
     lesson-07-electricity.md      # lesson note / source material (week 2)
     lesson-08-failure.md          # lesson note / source material (week 2)
     lesson-09-mailbox.md          # lesson note / source material (week 2)
+    lesson-10-drone.md            # lesson note / source material (week 2)
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -476,6 +479,32 @@ The expected shape is still:
 
 If `data/suspects.json` contains placeholder or stale data, `bin/week_1/find_him_2` will work on the wrong suspects.
 
+## Lesson 10 / Task 10: `drone` (`bin/week_2/drone_10`)
+
+**Flag: `{FLG:LETSFLY}`**
+
+1. Fetches the drone map PNG URL from the hub (includes api_key in URL)
+2. Sends the URL to a **vision model** (`gpt-4o`) with a prompt asking to locate the dam sector in the grid
+3. Gets back `{"col": X, "row": Y}` — the dam's grid coordinates (top-left = col 1, row 1)
+4. Builds flight instructions:
+   - `setDestinationObject(PWR6132PL)` — declared target is the power plant
+   - `set(col,row)` — **actual** landing sector = the dam (this is where the bomb drops)
+   - `set(destroy)` + `set(engineON)` + `set(100%)` + `set(50m)` + `flyToLocation`
+5. Submits to `/verify` with `task: drone`; on error uses a text LLM to fix instructions reactively
+
+```bash
+chmod +x bin/week_2/drone_10
+bin/week_2/drone_10
+# or override models:
+VISION_MODEL=gpt-4o LLM_MODEL=gpt-4o-mini bin/week_2/drone_10
+```
+
+Notes:
+- Vision step is critical — `gpt-4o` counts grid cells accurately; `gpt-4o-mini` cannot.
+- The deception: official destination = power plant (`setDestinationObject`), actual landing = dam (`set(x,y)`).
+- Reactive loop: API error messages are fed back to the text LLM to generate corrected instructions.
+- `hardReset` is used automatically if state corruption is detected (errors mention prior config).
+
 ## Quick-run examples
 
 ```bash
@@ -493,6 +522,7 @@ bin/week_2/categorize_6    # Lesson 6: categorize
 bin/week_2/electricity_7   # Lesson 7: electricity
 bin/week_2/failure_8       # Lesson 8: failure
 LLM_MODEL=gpt-4o-mini bin/week_2/mailbox_9  # Lesson 9: mailbox
+bin/week_2/drone_10                         # Lesson 10: drone (uses gpt-4o for vision)
 ```
 
 ## Notes
@@ -504,6 +534,7 @@ LLM_MODEL=gpt-4o-mini bin/week_2/mailbox_9  # Lesson 9: mailbox
 - `railway` uses a deterministic state machine with raw header logging, exponential backoff for `503`, and cooldown handling for the API's strict limits.
 - `failure` uses deterministic log compression plus hub feedback iteration to stay under the 1500-token limit while preserving the root-cause timeline.
 - `mailbox` uses a Function Calling agent loop to search a live email inbox via the zmail API; the agent first calls `help`, then searches with Polish keywords (`hasło`) and Gmail-style operators, fetches full message bodies by ID, and handles a correction email where the SEC confirmation code had a typo (missing final char).
+- `drone` uses a two-step approach: a vision model (`gpt-4o`) analyzes the drone map PNG to locate the dam sector grid coordinates, then a reactive loop builds and submits flight instructions — setting the official destination to the power plant (`setDestinationObject(PWR6132PL)`) while setting the actual landing sector to the dam (`set(col,row)`) for the bomb drop.
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.
