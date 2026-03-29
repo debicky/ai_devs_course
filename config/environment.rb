@@ -75,6 +75,12 @@ require_relative '../app/s03/services/evaluation/runner'
 require_relative '../app/s03/services/firmware/tool_executor'
 require_relative '../app/s03/services/firmware/runner'
 
+require_relative '../app/s03/services/reactor/block'
+require_relative '../app/s03/services/reactor/state_parser'
+require_relative '../app/s03/services/reactor/navigator'
+require_relative '../app/s03/services/reactor/runner'
+
 # S03 — Week 3 Tasks
 require_relative '../app/s03/tasks/evaluation_task'
 require_relative '../app/s03/tasks/firmware_task'
+require_relative '../app/s03/tasks/reactor_task'
