@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative '../config/environment'
+require_relative '../../config/environment'
 
 DEFAULT_MODEL = 'gpt-4o-mini'
-SUSPECTS_PATH = File.expand_path('../data/suspects.json', __dir__)
+SUSPECTS_PATH = File.expand_path('../../data/suspects.json', __dir__)
 
 def required_env!(name)
   value = ENV[name].to_s.strip

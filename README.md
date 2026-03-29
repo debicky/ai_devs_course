@@ -4,31 +4,44 @@ Minimal Ruby app with small, explicit layers for AG3NTS tasks.
 
 Lesson mapping:
 
-- Lesson 1: `bin/run` (`people`)
-- Lesson 2: `bin/find_him` (`findhim`)
-- Lesson 3: `bin/proxy` (`proxy`)
-- Lesson 4: `bin/sendit` (`sendit`)
-- Lesson 5: `bin/railway` (`railway`)
+### Week 1
+
+- Lesson 1: `bin/week_1/run_1` (`people`)
+- Lesson 2: `bin/week_1/find_him_2` (`findhim`)
+- Lesson 3: `bin/week_1/proxy_3` (`proxy`)
+- Lesson 4: `bin/week_1/sendit_4` (`sendit`)
+- Lesson 5: `bin/week_1/railway_5` (`railway`)
+
+### Week 2
+
+- Lesson 6: `bin/week_2/categorize_6` (`categorize`)
+- Lesson 7: `bin/week_2/electricity_7` (`electricity`)
 
 ## Lesson notes
 
 Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 
-- Lesson 1 / `people` / `bin/run` → [`docs/lessons/lesson-01-people.md`](docs/lessons/lesson-01-people.md)
-- Lesson 2 / `findhim` / `bin/find_him` → [`docs/lessons/lesson-02-find-him.md`](docs/lessons/lesson-02-find-him.md)
-- Lesson 3 / `proxy` / `bin/proxy` → [`docs/lessons/lesson-03-proxy.md`](docs/lessons/lesson-03-proxy.md)
-- Lesson 4 / `sendit` / `bin/sendit` → [`docs/lessons/lesson-04-sendit.md`](docs/lessons/lesson-04-sendit.md)
-- Lesson 5 / `railway` / `bin/railway` → [`docs/lessons/lesson-05-railway.md`](docs/lessons/lesson-05-railway.md)
+- Lesson 1 / `people` / `bin/week_1/run_1` → [`docs/lessons/lesson-01-people.md`](docs/lessons/lesson-01-people.md)
+- Lesson 2 / `findhim` / `bin/week_1/find_him_2` → [`docs/lessons/lesson-02-find-him.md`](docs/lessons/lesson-02-find-him.md)
+- Lesson 3 / `proxy` / `bin/week_1/proxy_3` → [`docs/lessons/lesson-03-proxy.md`](docs/lessons/lesson-03-proxy.md)
+- Lesson 4 / `sendit` / `bin/week_1/sendit_4` → [`docs/lessons/lesson-04-sendit.md`](docs/lessons/lesson-04-sendit.md)
+- Lesson 5 / `railway` / `bin/week_1/railway_5` → [`docs/lessons/lesson-05-railway.md`](docs/lessons/lesson-05-railway.md)
+- Lesson 6 / `categorize` / `bin/week_2/categorize_6` → [`docs/lessons/lesson-06-categorize.md`](docs/lessons/lesson-06-categorize.md)
+- Lesson 7 / `electricity` / `bin/week_2/electricity_7` → [`docs/lessons/lesson-07-electricity.md`](docs/lessons/lesson-07-electricity.md)
 
 ## Structure
 
 ```text
 bin/
-  run                             # Lesson 1: people task entrypoint
-  find_him                        # Lesson 2: findhim task entrypoint
-  proxy                           # Lesson 3: proxy HTTP server entrypoint
-  sendit                          # Lesson 4: sendit declaration entrypoint
-  railway                         # Lesson 5: railway task entrypoint
+  week_1/
+    run_1                         # Lesson 1: people task entrypoint
+    find_him_2                    # Lesson 2: findhim task entrypoint
+    proxy_3                       # Lesson 3: proxy HTTP server entrypoint
+    sendit_4                      # Lesson 4: sendit declaration entrypoint
+    railway_5                     # Lesson 5: railway task entrypoint
+  week_2/
+    categorize_6                  # Lesson 6: categorize task entrypoint
+    electricity_7                 # Lesson 7: electricity puzzle entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -36,6 +49,8 @@ docs/
     lesson-03-proxy.md            # lesson note / source material
     lesson-04-sendit.md           # lesson note / source material
     lesson-05-railway.md          # lesson note / source material
+    lesson-06-categorize.md       # lesson note / source material (week 2)
+    lesson-07-electricity.md      # lesson note / source material (week 2)
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -44,33 +59,45 @@ app/
     hub_client.rb                 # AG3NTS Hub API client
     llm_client.rb                 # LLM JSON schema + tool-calling client
     packages_client.rb            # package API client
-  services/
-    people/
-      csv_parser.rb
-      filter.rb
-      job_classifier.rb
-      transport_selector.rb
-      answer_builder.rb
-    find_him/
-      suspects_loader.rb          # load suspects from local JSON
-      distance_calculator.rb      # Haversine distance
-      tool_executor.rb            # executes LLM-requested tools
-    proxy/
-      session_store.rb            # per-session memory on disk
-      tool_executor.rb            # package tools requested by the LLM
-      conversation_runner.rb      # bounded function-calling loop
-      http_server.rb              # local JSON endpoint
-    send_it/
-      documentation_explorer.rb   # recursive SPK docs discovery with image OCR
-      declaration_builder.rb      # derive and fill the declaration form
-    railway/
-      runner.rb                   # resilient railway API state machine
-  tasks/
-    people_task.rb
-    find_him_task.rb
-    proxy_task.rb
-    sendit_task.rb
-    railway_task.rb
+  s01/                            # Week 1
+    services/
+      people/
+        csv_parser.rb
+        filter.rb
+        job_classifier.rb
+        transport_selector.rb
+        answer_builder.rb
+      find_him/
+        suspects_loader.rb        # load suspects from local JSON
+        distance_calculator.rb    # Haversine distance
+        tool_executor.rb          # executes LLM-requested tools
+      proxy/
+        session_store.rb          # per-session memory on disk
+        tool_executor.rb          # package tools requested by the LLM
+        conversation_runner.rb    # bounded function-calling loop
+        http_server.rb            # local JSON endpoint
+      send_it/
+        documentation_explorer.rb # recursive SPK docs discovery with image OCR
+        declaration_builder.rb    # derive and fill the declaration form
+      railway/
+        runner.rb                 # resilient railway API state machine
+    tasks/
+      people_task.rb
+      find_him_task.rb
+      proxy_task.rb
+      sendit_task.rb
+      railway_task.rb
+  s02/                            # Week 2
+    services/
+      categorize/
+        runner.rb                 # prompt-engineering classifier loop
+      electricity/
+        board_reader.rb           # vision-based PNG grid analysis
+        rotation_solver.rb        # compute rotations from current to target
+        runner.rb                 # orchestrate: read, solve, rotate, verify
+    tasks/
+      categorize_task.rb
+      electricity_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -91,28 +118,30 @@ Model selection stays in each run file. You can override it temporarily with `LL
 
 ### Which script uses which keys?
 
-- `bin/run`
+- `bin/week_1/run_1`
   - requires `AG3NTS_API_KEY`
   - uses `GEMINI_API_KEY` if present
   - otherwise falls back to `OPENAI_API_KEY`
-- `bin/find_him`
+- `bin/week_1/find_him_2`
   - requires `AG3NTS_API_KEY`
   - requires `OPENAI_API_KEY`
-- `bin/proxy`
+- `bin/week_1/proxy_3`
   - requires `AG3NTS_API_KEY`
   - requires `OPENAI_API_KEY`
   - optional `PORT` (default `3000`)
-- `bin/sendit`
+- `bin/week_1/sendit_4`
   - requires `AG3NTS_API_KEY`
   - requires `OPENAI_API_KEY`
-- `bin/railway`
+- `bin/week_1/railway_5`
+  - requires `AG3NTS_API_KEY`
+- `bin/week_2/categorize_6`
   - requires `AG3NTS_API_KEY`
 
-## Lesson 1 / Task 1: `people` (`bin/run`)
+## Lesson 1 / Task 1: `people` (`bin/week_1/run_1`)
 
 This is the first task / lesson.
 
-What `bin/run` does:
+What `bin/week_1/run_1` does:
 
 1. downloads `people.csv`
 2. parses and filters the records
@@ -125,8 +154,8 @@ Run it with:
 
 ```bash
 bundle install
-chmod +x bin/run bin/find_him
-bin/run
+chmod +x bin/week_1/run_1 bin/week_1/find_him_2
+bin/week_1/run_1
 ```
 
 After it finishes you should have:
@@ -135,11 +164,11 @@ After it finishes you should have:
 - a terminal summary of transport suspects
 - `data/suspects.json` generated automatically
 
-## Lesson 2 / Task 2: `find_him` (`bin/find_him`)
+## Lesson 2 / Task 2: `find_him` (`bin/week_1/find_him_2`)
 
 This is the second task / lesson.
 
-`bin/find_him` uses the suspects saved by `bin/run` in `data/suspects.json` and then:
+`bin/week_1/find_him_2` uses the suspects saved by `bin/week_1/run_1` in `data/suspects.json` and then:
 
 1. loads suspects from `data/suspects.json`
 2. checks where each suspect was seen
@@ -150,14 +179,14 @@ This is the second task / lesson.
 Run it with:
 
 ```bash
-bin/find_him
+bin/week_1/find_him_2
 ```
 
-## Lesson 3 / Task 3: `proxy` (`bin/proxy`)
+## Lesson 3 / Task 3: `proxy` (`bin/week_1/proxy_3`)
 
 This task starts a local HTTP endpoint for a transparent logistics assistant.
 
-What `bin/proxy` does:
+What `bin/week_1/proxy_3` does:
 
 1. starts a local HTTP server
 2. accepts `POST /` JSON requests with `sessionID` and `msg`
@@ -169,14 +198,14 @@ What `bin/proxy` does:
 Run it with:
 
 ```bash
-chmod +x bin/proxy
-bin/proxy
+chmod +x bin/week_1/proxy_3
+bin/week_1/proxy_3
 ```
 
 You can override the port:
 
 ```bash
-PORT=4000 bin/proxy
+PORT=4000 bin/week_1/proxy_3
 ```
 
 Request format:
@@ -214,7 +243,7 @@ If package checks or redirects return unexpected results, test the external pack
 - external API behavior
 - bug in your app
 
-Conceptually, compare the direct API response with the logs from `bin/proxy`.
+Conceptually, compare the direct API response with the logs from `bin/week_1/proxy_3`.
 
 Check example:
 
@@ -241,11 +270,11 @@ The proxy logs now include:
 
 This makes it easier to verify whether the model changed arguments or whether the external API rejected valid-looking test data.
 
-## Lesson 4 / Task 4: `sendit` (`bin/sendit`)
+## Lesson 4 / Task 4: `sendit` (`bin/week_1/sendit_4`)
 
 This task generates the SPK transport declaration for the `sendit` challenge and submits it to `/verify`.
 
-What `bin/sendit` does:
+What `bin/week_1/sendit_4` does:
 
 1. fetches the public SPK documentation index
 2. recursively follows linked markdown and `[include file="..."]` attachments
@@ -258,21 +287,21 @@ What `bin/sendit` does:
 Run it with:
 
 ```bash
-chmod +x bin/sendit
-bin/sendit
+chmod +x bin/week_1/sendit_4
+bin/week_1/sendit_4
 ```
 
 Notes:
 
-- `bin/sendit` keeps model selection in the file itself and defaults to `gpt-4o-mini`.
+- `bin/week_1/sendit_4` keeps model selection in the file itself and defaults to `gpt-4o-mini`.
 - The declaration is printed before verification so you can inspect the final paper-form string.
 - The implementation derives the Żarnowiec route from the documentation instead of hardcoding the route code.
 
-## Lesson 5 / Task 5: `railway` (`bin/railway`)
+## Lesson 5 / Task 5: `railway` (`bin/week_1/railway_5`)
 
 This task interacts with the self-documenting railway API and activates route `X-01`.
 
-What `bin/railway` does:
+What `bin/week_1/railway_5` does:
 
 1. starts with `action: "help"`
 2. validates the returned action list
@@ -286,15 +315,44 @@ What `bin/railway` does:
 Run it with:
 
 ```bash
-chmod +x bin/railway
-bin/railway
+chmod +x bin/week_1/railway_5
+bin/week_1/railway_5
 ```
 
 Notes:
 
-- `bin/railway` does not require an LLM.
+- `bin/week_1/railway_5` does not require an LLM.
 - The API is intentionally unstable and aggressively rate-limited, so the runner is conservative and may wait between calls.
 - The task is complete only when the response contains a flag like `{FLG:...}`.
+
+## Lesson 6 / Task 6: `categorize` (`bin/week_2/categorize_6`)
+
+This task classifies 10 items as dangerous (`DNG`) or neutral (`NEU`) via a token-constrained prompt.
+
+What `bin/week_2/categorize_6` does:
+
+1. resets the hub budget counter
+2. downloads fresh CSV from the hub (contents rotate every few minutes)
+3. parses the 10 items (id + description)
+4. builds a compact classification prompt (must fit in 100 tokens including item data)
+5. sends the prompt for each item to `/verify` with task `categorize`
+6. reactor-related items are always classified as `NEU` to avoid inspection
+7. reads hub feedback — if a classification fails or budget runs out, resets and retries with an adjusted prompt
+8. returns the flag when all 10 items pass
+
+Run it with:
+
+```bash
+chmod +x bin/week_2/categorize_6
+bin/week_2/categorize_6
+```
+
+Notes:
+
+- The prompt is in English to save tokens.
+- Static prompt prefix maximises cache hits (cheaper tokens).
+- Variable data (item id, description) goes at the end of the prompt.
+- `bin/week_2/categorize_6` does not require an LLM beyond the hub's internal model.
 
 ### `data/suspects.json`
 
@@ -312,39 +370,22 @@ The expected shape is still:
 ]
 ```
 
-If `data/suspects.json` contains placeholder or stale data, `bin/find_him` will work on the wrong suspects.
+If `data/suspects.json` contains placeholder or stale data, `bin/week_1/find_him_2` will work on the wrong suspects.
 
-## Run both tasks in order
-
-```bash
-bundle install
-chmod +x bin/run bin/find_him
-bin/run
-bin/find_him
-```
-
-## Run the sendit task
+## Quick-run examples
 
 ```bash
 bundle install
-chmod +x bin/sendit
-bin/sendit
-```
 
-## Run the railway task
+# Week 1
+bin/week_1/run_1           # Lesson 1: people
+bin/week_1/find_him_2      # Lesson 2: findhim
+bin/week_1/proxy_3         # Lesson 3: proxy server
+bin/week_1/sendit_4        # Lesson 4: sendit
+bin/week_1/railway_5       # Lesson 5: railway
 
-```bash
-bundle install
-chmod +x bin/railway
-bin/railway
-```
-
-## Run the proxy server
-
-```bash
-bundle install
-chmod +x bin/proxy
-bin/proxy
+# Week 2
+bin/week_2/categorize_6    # Lesson 6: categorize
 ```
 
 ## Notes
@@ -354,7 +395,7 @@ bin/proxy
 - `proxy` also uses Function Calling, but only for transparent package operations (`check_package` and `redirect_package`).
 - `sendit` uses recursive document discovery plus image text extraction to reconstruct the exact declaration string from the SPK docs.
 - `railway` uses a deterministic state machine with raw header logging, exponential backoff for `503`, and cooldown handling for the API's strict limits.
-- `bin/run` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
+- `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.
 - `proxy` keeps per-session history in `data/proxy_sessions/`, which is ignored by git.

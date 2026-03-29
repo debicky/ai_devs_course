@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative '../config/environment'
+require_relative '../../config/environment'
 
 DEFAULT_MODEL = 'gpt-4o-mini'
 OPEN_TIMEOUT = 30
@@ -55,3 +55,5 @@ puts result.fetch(:declaration)
 puts
 puts 'Verification result:'
 puts JSON.pretty_generate(result.fetch(:verification))
+
+

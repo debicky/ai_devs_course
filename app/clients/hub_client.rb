@@ -9,10 +9,16 @@ module Clients
     LOCATION_PATH        = '/api/location'
     ACCESS_LEVEL_PATH    = '/api/accesslevel'
     VERIFY_PATH          = '/verify'
+    CATEGORIZE_CSV_PATH  = '/data/%<api_key>s/categorize.csv'
 
     def initialize(http_client:)
       @http_client = http_client
       @api_key     = fetch_api_key
+    end
+
+    def fetch_categorize_csv
+      path = format(CATEGORIZE_CSV_PATH, api_key: @api_key)
+      @http_client.get("#{BASE_URL}#{path}").body
     end
 
     def fetch_people_csv

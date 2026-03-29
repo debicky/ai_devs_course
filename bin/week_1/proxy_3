@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative '../config/environment'
+require_relative '../../config/environment'
 
 DEFAULT_MODEL = 'gpt-4o-mini'
 DEFAULT_PORT = 3000
-SESSIONS_DIRECTORY = File.expand_path('../data/proxy_sessions', __dir__)
+SESSIONS_DIRECTORY = File.expand_path('../../data/proxy_sessions', __dir__)
 
 def required_env!(name)
   value = ENV[name].to_s.strip
@@ -48,3 +48,5 @@ puts "→ Session storage: #{SESSIONS_DIRECTORY}"
 puts '→ POST JSON to / with: {"sessionID":"...","msg":"..."}'
 
 task.call
+
+

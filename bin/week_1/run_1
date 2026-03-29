@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative '../config/environment'
+require_relative '../../config/environment'
 
 DEFAULT_OPENAI_MODEL = 'gpt-4o-mini'
 DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash-lite'
@@ -82,7 +82,7 @@ selected   = step('Selecting transport people') do
 end
 answer = answer_builder.call(selected)
 
-suspects_path = File.expand_path('../data/suspects.json', __dir__)
+suspects_path = File.expand_path('../../data/suspects.json', __dir__)
 step('Saving suspects to data/suspects.json') do
   suspects_data = selected.map do |p|
     { 'name' => p[:first_name].to_s, 'surname' => p[:last_name].to_s, 'born' => Integer(p[:born]) }

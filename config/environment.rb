@@ -19,34 +19,36 @@ require_relative '../app/clients/hub_client'
 require_relative '../app/clients/llm_client'
 require_relative '../app/clients/packages_client'
 
-# Services::People
-require_relative '../app/services/people/csv_parser'
-require_relative '../app/services/people/filter'
-require_relative '../app/services/people/job_classifier'
-require_relative '../app/services/people/transport_selector'
-require_relative '../app/services/people/answer_builder'
+# S01 — Week 1 Services
+require_relative '../app/s01/services/people/csv_parser'
+require_relative '../app/s01/services/people/filter'
+require_relative '../app/s01/services/people/job_classifier'
+require_relative '../app/s01/services/people/transport_selector'
+require_relative '../app/s01/services/people/answer_builder'
 
-# Services::FindHim
-require_relative '../app/services/find_him/suspects_loader'
-require_relative '../app/services/find_him/distance_calculator'
-require_relative '../app/services/find_him/tool_executor'
+require_relative '../app/s01/services/find_him/suspects_loader'
+require_relative '../app/s01/services/find_him/distance_calculator'
+require_relative '../app/s01/services/find_him/tool_executor'
 
-# Services::Proxy
-require_relative '../app/services/proxy/session_store'
-require_relative '../app/services/proxy/tool_executor'
-require_relative '../app/services/proxy/conversation_runner'
-require_relative '../app/services/proxy/http_server'
+require_relative '../app/s01/services/proxy/session_store'
+require_relative '../app/s01/services/proxy/tool_executor'
+require_relative '../app/s01/services/proxy/conversation_runner'
+require_relative '../app/s01/services/proxy/http_server'
 
-# Services::SendIt
-require_relative '../app/services/send_it/documentation_explorer'
-require_relative '../app/services/send_it/declaration_builder'
+require_relative '../app/s01/services/send_it/documentation_explorer'
+require_relative '../app/s01/services/send_it/declaration_builder'
 
-# Services::Railway
-require_relative '../app/services/railway/runner'
+require_relative '../app/s01/services/railway/runner'
 
-# Tasks
-require_relative '../app/tasks/people_task'
-require_relative '../app/tasks/find_him_task'
-require_relative '../app/tasks/proxy_task'
-require_relative '../app/tasks/sendit_task'
-require_relative '../app/tasks/railway_task'
+# S01 — Week 1 Tasks
+require_relative '../app/s01/tasks/people_task'
+require_relative '../app/s01/tasks/find_him_task'
+require_relative '../app/s01/tasks/proxy_task'
+require_relative '../app/s01/tasks/sendit_task'
+require_relative '../app/s01/tasks/railway_task'
+
+# S02 — Week 2 Services
+require_relative '../app/s02/services/categorize/runner'
+
+# S02 — Week 2 Tasks
+require_relative '../app/s02/tasks/categorize_task'
