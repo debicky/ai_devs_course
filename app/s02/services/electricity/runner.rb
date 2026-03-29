@@ -1,74 +1,71 @@
 # frozen_string_literal: true
 
+require 'tempfile'
+
 module Services
   module Electricity
     class Runner
       TASK_NAME = 'electricity'
       MAX_ATTEMPTS = 5
 
-      def initialize(hub_client:, board_reader:, solver:)
+      def initialize(hub_client:, pixel_solver:)
         @hub    = hub_client
-        @reader = board_reader
-        @solver = solver
+        @solver = pixel_solver
       end
 
       def call
-        attempt = 0
+        # Download solved image once (it's static)
+        solved_path = download_solved_image
 
+        attempt = 0
         loop do
           attempt += 1
           raise "Failed after #{MAX_ATTEMPTS} attempts" if attempt > MAX_ATTEMPTS
 
           puts "\n=== Attempt #{attempt} ==="
-          result = run_attempt(reset: true)
+          result = run_attempt(solved_path)
 
           return { verification: result[:last_response], flag: result[:flag] } if result[:flag]
 
           puts '  No flag yet, retrying...'
         end
+      ensure
+        File.delete(solved_path) if solved_path && File.exist?(solved_path)
       end
 
       private
 
-      def run_attempt(reset:)
-        # Step 1: Reset board on first attempt
-        if reset
-          puts '  Resetting board...'
-          @hub.fetch_electricity_png(reset: true)
-          puts '  Board reset.'
-        end
+      def download_solved_image
+        puts '  Downloading solved image...'
+        data = Net::HTTP.get(URI(@hub.solved_electricity_png_url))
+        path = File.join(Dir.tmpdir, "solved_electricity_#{Process.pid}.png")
+        File.binwrite(path, data)
+        puts "  Saved to #{path}"
+        path
+      end
 
-        # Step 2: Read current board state
-        puts '  Reading current board via vision model...'
+      def run_attempt(solved_path)
+        # Step 1: Reset board
+        puts '  Resetting board...'
+        @hub.fetch_electricity_png(reset: true)
+        puts '  Board reset.'
+
+        # Step 2: Download current board
+        puts '  Downloading current board...'
         current_png = @hub.fetch_electricity_png
-        current_board = @reader.read_board(png_data: current_png)
-        puts '  Current board:'
-        print_board(current_board)
 
-        # Step 3: Read target board state
-        puts '  Reading target board via vision model...'
-        target_board = @reader.read_board(image_url: @hub.solved_electricity_png_url)
-        puts '  Target board:'
-        print_board(target_board)
-
-        # Step 4: Compute rotations
-        rotations = begin
-          @solver.solve(current_board, target_board)
-        rescue RuntimeError => e
-          puts "  Vision mismatch: #{e.message}"
-          puts '  Tile types disagree — re-reading boards on next attempt...'
-          return { flag: nil, last_response: nil }
-        end
+        # Step 3: Compare pixels to find rotations
+        puts '  Computing rotations via pixel comparison...'
+        rotations = @solver.solve(current_png, solved_path)
 
         if rotations.empty?
           puts '  Board already matches target!'
         else
           puts "  Rotations needed: #{rotations}"
-          total_rotates = rotations.values.sum
-          puts "  Total rotate commands: #{total_rotates}"
+          puts "  Total rotate commands: #{rotations.values.sum}"
         end
 
-        # Step 5: Send rotations
+        # Step 4: Send rotations
         last_response = nil
         rotations.sort.each do |cell, count|
           count.times do |i|
@@ -81,28 +78,7 @@ module Services
           end
         end
 
-        # Step 6: Verify — read board again and check
-        puts '  Verifying final state...'
-        verify_png = @hub.fetch_electricity_png
-        final_board = @reader.read_board(png_data: verify_png)
-        puts '  Final board:'
-        print_board(final_board)
-
-        mismatches = final_board.reject { |cell, edges| target_board[cell] == edges }
-        if mismatches.empty?
-          puts '  Board matches target! Waiting for flag...'
-        else
-          puts "  Mismatches remain: #{mismatches}"
-        end
-
         { flag: nil, last_response: last_response }
-      end
-
-      def print_board(board)
-        (1..3).each do |row|
-          cells = (1..3).map { |col| "#{row}x#{col}:#{board["#{row}x#{col}"] || '?'}" }
-          puts "    #{cells.join('  ')}"
-        end
       end
 
       def extract_flag(response)

@@ -50,8 +50,7 @@ require_relative '../app/s01/tasks/railway_task'
 # S02 — Week 2 Services
 require_relative '../app/s02/services/categorize/runner'
 
-require_relative '../app/s02/services/electricity/board_reader'
-require_relative '../app/s02/services/electricity/rotation_solver'
+require_relative '../app/s02/services/electricity/pixel_solver'
 require_relative '../app/s02/services/electricity/runner'
 
 # S02 — Week 2 Tasks

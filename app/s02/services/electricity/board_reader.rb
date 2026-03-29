@@ -45,8 +45,51 @@ module Services
 
       READS_PER_BOARD = 3
 
+      COMPARE_PROMPT = <<~PROMPT
+        You are looking at TWO images of 3x3 grids of electrical cable tiles.
+        IMAGE 1 is the CURRENT state.
+        IMAGE 2 is the TARGET (solved) state.
+
+        Each tile can only be ROTATED 90 degrees clockwise. One rotation maps: U->R, R->D, D->L, L->U.
+
+        IMPORTANT: Since tiles can only be rotated (not replaced), both grids have the SAME tile types at each position.
+        Tile types: corner (2 adjacent edges), straight (2 opposite edges), T-junction (3 edges), cross (4 edges).
+
+        For each cell (AxB where A=row 1-3 from top, B=col 1-3 from left):
+        1. Identify which edges the cable touches in the CURRENT image: U(top), D(bottom), L(left), R(right)
+        2. Identify which edges the cable touches in the TARGET image
+        3. Calculate how many 90-degree CLOCKWISE rotations transform current into target (0, 1, 2, or 3)
+
+        Output EXACTLY 9 lines, format: AxB: CURRENT_EDGES -> TARGET_EDGES = N rotations
+        Example: 1x1: LU -> DR = 2 rotations
+
+        Sort edges alphabetically (D before L before R before U). Be very precise about which edges cables touch.
+      PROMPT
+
       def initialize(llm_client:)
         @llm = llm_client
+      end
+
+      def compare_boards(current_png_data:, target_image_url:)
+        b64 = Base64.strict_encode64(current_png_data)
+        current_url = "data:image/png;base64,#{b64}"
+
+        readings = READS_PER_BOARD.times.map do |i|
+          puts "    Compare read #{i + 1}/#{READS_PER_BOARD}..."
+          single_compare(current_url, target_image_url)
+        end
+
+        # Majority vote on rotations per cell
+        result = {}
+        cells = readings.first.keys
+        cells.each do |cell|
+          votes = readings.map { |r| r[cell] }
+          winner = votes.tally.max_by { |_, count| count }.first
+          result[cell] = winner
+          disagreement = votes.uniq.size > 1
+          puts "    #{cell}: #{winner} rots#{" (votes: #{votes.join(', ')})" if disagreement}" if disagreement
+        end
+        result
       end
 
       def read_board(png_data: nil, image_url: nil)
@@ -81,6 +124,32 @@ module Services
                              ])
 
         parse_board(response['content'])
+      end
+
+      def single_compare(current_url, target_url)
+        response = @llm.chat(messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: COMPARE_PROMPT },
+              { type: 'text', text: 'IMAGE 1 (CURRENT):' },
+              { type: 'image_url', image_url: { url: current_url } },
+              { type: 'text', text: 'IMAGE 2 (TARGET):' },
+              { type: 'image_url', image_url: { url: target_url } }
+            ]
+          }
+        ])
+
+        parse_rotations(response['content'])
+      end
+
+      def parse_rotations(text)
+        rotations = {}
+        text.scan(/(\d)x(\d):.*?=\s*(\d)\s*rotation/i) do |row, col, count|
+          rotations["#{row}x#{col}"] = count.to_i
+        end
+        raise "Expected 9 rotation entries, got #{rotations.size}: #{text}" if rotations.size != 9
+        rotations
       end
 
       def majority_vote(readings)
