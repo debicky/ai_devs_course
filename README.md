@@ -29,6 +29,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 5 / `railway` / `bin/week_1/railway_5` → [`docs/lessons/lesson-05-railway.md`](docs/lessons/lesson-05-railway.md)
 - Lesson 6 / `categorize` / `bin/week_2/categorize_6` → [`docs/lessons/lesson-06-categorize.md`](docs/lessons/lesson-06-categorize.md)
 - Lesson 7 / `electricity` / `bin/week_2/electricity_7` → [`docs/lessons/lesson-07-electricity.md`](docs/lessons/lesson-07-electricity.md)
+- Lesson 8 / `failure` / `bin/week_2/failure_8` → [`docs/lessons/lesson-08-failure.md`](docs/lessons/lesson-08-failure.md)
 
 ## Structure
 
@@ -43,6 +44,7 @@ bin/
   week_2/
     categorize_6                  # Lesson 6: categorize task entrypoint
     electricity_7                 # Lesson 7: electricity puzzle entrypoint
+    failure_8                     # Lesson 8: failure log compression entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -52,6 +54,7 @@ docs/
     lesson-05-railway.md          # lesson note / source material
     lesson-06-categorize.md       # lesson note / source material (week 2)
     lesson-07-electricity.md      # lesson note / source material (week 2)
+    lesson-08-failure.md          # lesson note / source material (week 2)
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -95,9 +98,12 @@ app/
       electricity/
         pixel_solver.rb           # ImageMagick pixel comparison solver
         runner.rb                 # orchestrate: download, compare, rotate
+      failure/
+        runner.rb                 # compress + iterate on technician feedback
     tasks/
       categorize_task.rb
       electricity_task.rb
+      failure_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -139,6 +145,8 @@ Model selection stays in each run file. You can override it temporarily with `LL
 - `bin/week_2/electricity_7`
   - requires `AG3NTS_API_KEY`
   - requires `magick` (ImageMagick 7) on PATH
+- `bin/week_2/failure_8`
+  - requires `AG3NTS_API_KEY`
 
 ## Lesson 1 / Task 1: `people` (`bin/week_1/run_1`)
 
@@ -385,6 +393,34 @@ Notes:
 - Vision models (gpt-4o, Gemini) were tried first but proved unreliable — they consistently misread the bottom row of the grid, confusing cable corners with straights. Splitting the image into individual cells and using direct pixel comparison solved the problem on the first attempt.
 - Requires `magick` (ImageMagick 7) on PATH.
 
+## Lesson 8 / Task 8: `failure` (`bin/week_2/failure_8`)
+
+This task compresses a large power-plant log into an analysis-ready multiline summary and iterates on technician feedback until verification passes.
+
+What `bin/week_2/failure_8` does:
+
+1. downloads `failure.log` from the hub
+2. parses the full day of system logs
+3. identifies component-style tokens like `ECCS8`, `WTANK07`, `PWR01`, `WTRPMP`, and `FIRMWARE`
+4. builds a compact timeline from the most relevant non-INFO events
+5. keeps the payload under a conservative token budget
+6. submits the condensed logs to `/verify`
+7. reads technician feedback and expands coverage for requested components or subsystems
+8. repeats until a flag is returned
+
+Run it with:
+
+```bash
+chmod +x bin/week_2/failure_8
+bin/week_2/failure_8
+```
+
+Notes:
+
+- The implementation is deterministic and feedback-driven — no extra LLM is required.
+- The final output preserves one event per line with date, time, severity, and subsystem identifiers.
+- The current implementation solved the task with the flag `{FLG:SQUASHIT}`.
+
 ### `data/suspects.json`
 
 You usually do not need to create this file manually anymore, because `bin/run` writes it for you.
@@ -418,6 +454,7 @@ bin/week_1/railway_5       # Lesson 5: railway
 # Week 2
 bin/week_2/categorize_6    # Lesson 6: categorize
 bin/week_2/electricity_7   # Lesson 7: electricity
+bin/week_2/failure_8       # Lesson 8: failure
 ```
 
 ## Notes
@@ -427,6 +464,7 @@ bin/week_2/electricity_7   # Lesson 7: electricity
 - `proxy` also uses Function Calling, but only for transparent package operations (`check_package` and `redirect_package`).
 - `sendit` uses recursive document discovery plus image text extraction to reconstruct the exact declaration string from the SPK docs.
 - `railway` uses a deterministic state machine with raw header logging, exponential backoff for `503`, and cooldown handling for the API's strict limits.
+- `failure` uses deterministic log compression plus hub feedback iteration to stay under the 1500-token limit while preserving the root-cause timeline.
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.

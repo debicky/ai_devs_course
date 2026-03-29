@@ -14,7 +14,7 @@ module Services
       CELL_Y_START = 74
       CELL_W       = 88
       CELL_H       = 88
-      CELL_STEP_X  = 96  # distance between cell starts (border-to-border)
+      CELL_STEP_X  = 96 # distance between cell starts (border-to-border)
       CELL_STEP_Y  = 96
 
       def solve(current_png_data, solved_png_path)

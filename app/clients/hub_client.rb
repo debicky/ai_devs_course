@@ -12,6 +12,7 @@ module Clients
     CATEGORIZE_CSV_PATH  = '/data/%<api_key>s/categorize.csv'
     ELECTRICITY_PNG_PATH = '/data/%<api_key>s/electricity.png'
     SOLVED_ELECTRICITY   = '/i/solved_electricity.png'
+    FAILURE_LOG_PATH     = '/data/%<api_key>s/failure.log'
 
     def initialize(http_client:)
       @http_client = http_client
@@ -35,6 +36,11 @@ module Clients
 
     def fetch_categorize_csv
       path = format(CATEGORIZE_CSV_PATH, api_key: @api_key)
+      @http_client.get("#{BASE_URL}#{path}").body
+    end
+
+    def fetch_failure_log
+      path = format(FAILURE_LOG_PATH, api_key: @api_key)
       @http_client.get("#{BASE_URL}#{path}").body
     end
 

@@ -128,17 +128,17 @@ module Services
 
       def single_compare(current_url, target_url)
         response = @llm.chat(messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: COMPARE_PROMPT },
-              { type: 'text', text: 'IMAGE 1 (CURRENT):' },
-              { type: 'image_url', image_url: { url: current_url } },
-              { type: 'text', text: 'IMAGE 2 (TARGET):' },
-              { type: 'image_url', image_url: { url: target_url } }
-            ]
-          }
-        ])
+                               {
+                                 role: 'user',
+                                 content: [
+                                   { type: 'text', text: COMPARE_PROMPT },
+                                   { type: 'text', text: 'IMAGE 1 (CURRENT):' },
+                                   { type: 'image_url', image_url: { url: current_url } },
+                                   { type: 'text', text: 'IMAGE 2 (TARGET):' },
+                                   { type: 'image_url', image_url: { url: target_url } }
+                                 ]
+                               }
+                             ])
 
         parse_rotations(response['content'])
       end
@@ -149,6 +149,7 @@ module Services
           rotations["#{row}x#{col}"] = count.to_i
         end
         raise "Expected 9 rotation entries, got #{rotations.size}: #{text}" if rotations.size != 9
+
         rotations
       end
 

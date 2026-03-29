@@ -53,6 +53,9 @@ require_relative '../app/s02/services/categorize/runner'
 require_relative '../app/s02/services/electricity/pixel_solver'
 require_relative '../app/s02/services/electricity/runner'
 
+require_relative '../app/s02/services/failure/runner'
+
 # S02 — Week 2 Tasks
 require_relative '../app/s02/tasks/categorize_task'
 require_relative '../app/s02/tasks/electricity_task'
+require_relative '../app/s02/tasks/failure_task'
