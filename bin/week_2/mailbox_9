@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../../config/environment'
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+required_env!('AG3NTS_API_KEY')
+
+# Model selection: prefer a cheaper/faster model as recommended in the lesson.
+# Override with LLM_MODEL env var if needed.
+model = ENV.fetch('LLM_MODEL', 'google/gemini-2.5-flash-preview')
+
+http_client   = Clients::HttpClient.new(open_timeout: 30, read_timeout: 120)
+hub_client    = Clients::HubClient.new(http_client: http_client)
+
+# LLM client — use OpenRouter or OpenAI depending on available keys.
+# Prefer OPENROUTER_API_KEY → OPENAI_API_KEY for model flexibility.
+openrouter_key = ENV['OPENROUTER_API_KEY'].to_s.strip
+openai_key     = ENV['OPENAI_API_KEY'].to_s.strip
+
+llm_api_key, llm_base_url =
+  if !openrouter_key.empty?
+    [openrouter_key, 'https://openrouter.ai/api/v1']
+  elsif !openai_key.empty?
+    [openai_key, Clients::LlmClient::OPENAI_BASE_URL]
+  else
+    raise ArgumentError, 'Either OPENROUTER_API_KEY or OPENAI_API_KEY is required'
+  end
+
+llm_client = Clients::LlmClient.new(
+  http_client: http_client,
+  api_key: llm_api_key,
+  model: model,
+  base_url: llm_base_url
+)
+tool_executor = Services::Mailbox::ToolExecutor.new(hub_client: hub_client)
+runner        = Services::Mailbox::Runner.new(llm_client: llm_client, tool_executor: tool_executor)
+task          = Tasks::MailboxTask.new(runner: runner)
+
+puts "→ Running mailbox task (model: #{model})..."
+result = task.call
+
+puts
+puts 'Verification result:'
+puts JSON.pretty_generate(result.fetch(:verification))
+puts
+puts 'Submitted answer:'
+puts JSON.pretty_generate(result.fetch(:answer).transform_keys(&:to_s))
+
+flag = result.dig(:verification, 'flag') || result.dig(:verification, 'message')
+puts
+puts "Flag / message: #{flag}" if flag

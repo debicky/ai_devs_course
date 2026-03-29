@@ -13,6 +13,7 @@ module Clients
     ELECTRICITY_PNG_PATH = '/data/%<api_key>s/electricity.png'
     SOLVED_ELECTRICITY   = '/i/solved_electricity.png'
     FAILURE_LOG_PATH     = '/data/%<api_key>s/failure.log'
+    ZMAIL_PATH           = '/api/zmail'
 
     def initialize(http_client:)
       @http_client = http_client
@@ -96,6 +97,12 @@ module Clients
     def verify_raw(task:, answer:)
       payload = { apikey: @api_key, task: task, answer: answer }
       @http_client.post_json_raw("#{BASE_URL}#{VERIFY_PATH}", payload: payload)
+    end
+
+    def call_zmail(action:, **extra_params)
+      payload = { apikey: @api_key, action: action }.merge(extra_params)
+      response = @http_client.post_json("#{BASE_URL}#{ZMAIL_PATH}", payload: payload)
+      JSON.parse(response.body)
     end
 
     private

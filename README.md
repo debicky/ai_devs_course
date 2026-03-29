@@ -17,6 +17,7 @@ Lesson mapping:
 - Lesson 6: `bin/week_2/categorize_6` (`categorize`)
 - Lesson 7: `bin/week_2/electricity_7` (`electricity`)
 - Lesson 8: `bin/week_2/failure_8` (`failure`)
+- Lesson 9: `bin/week_2/mailbox_9` (`mailbox`) — **`{FLG:TRAITOR}`**
 
 ## Lesson notes
 
@@ -30,6 +31,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 6 / `categorize` / `bin/week_2/categorize_6` → [`docs/lessons/lesson-06-categorize.md`](docs/lessons/lesson-06-categorize.md)
 - Lesson 7 / `electricity` / `bin/week_2/electricity_7` → [`docs/lessons/lesson-07-electricity.md`](docs/lessons/lesson-07-electricity.md)
 - Lesson 8 / `failure` / `bin/week_2/failure_8` → [`docs/lessons/lesson-08-failure.md`](docs/lessons/lesson-08-failure.md)
+- Lesson 9 / `mailbox` / `bin/week_2/mailbox_9` → [`docs/lessons/lesson-09-mailbox.md`](docs/lessons/lesson-09-mailbox.md)
 
 ## Structure
 
@@ -55,6 +57,7 @@ docs/
     lesson-06-categorize.md       # lesson note / source material (week 2)
     lesson-07-electricity.md      # lesson note / source material (week 2)
     lesson-08-failure.md          # lesson note / source material (week 2)
+    lesson-09-mailbox.md          # lesson note / source material (week 2)
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -421,6 +424,40 @@ Notes:
 - The final output preserves one event per line with date, time, severity, and subsystem identifiers.
 - The current implementation solved the task with the flag `{FLG:SQUASHIT}`.
 
+## Lesson 9 / Task 9: `mailbox` (`bin/week_2/mailbox_9`)
+
+**Flag: `{FLG:TRAITOR}`**
+
+What `bin/week_2/mailbox_9` does:
+
+1. Connects to a live mailbox via `POST https://hub.ag3nts.org/api/zmail`
+2. Runs a Function Calling agent loop (max 25 iterations) using `gpt-4o-mini`
+3. The agent discovers available actions by calling `action="help"` first
+4. Searches for:
+   - Wiktor's email from `proton.me` (`from:proton.me`) to find the attack date
+   - Password email in Polish (`hasło`) to find the employee system password
+   - Confirmation codes (`SEC-`) to find the `SEC-` + 32 char code
+5. Fetches full message bodies by `messageID` using `action="getMessages"` with `ids` array
+6. Reads correction emails (the original code had a typo — corrected code is the one with 36 chars total)
+7. Submits all three values to `/verify`
+
+Values found:
+- `date`: `2026-03-23`
+- `password`: `RABARBAR25`
+- `confirmation_code`: `SEC-c1e598764329cc9c377ef1d029be8ceb`
+
+```bash
+chmod +x bin/week_2/mailbox_9
+LLM_MODEL=gpt-4o-mini bin/week_2/mailbox_9
+```
+
+Notes:
+
+- The mailbox is live — new messages arrive mid-run. The SEC code had a correction email ("Zgubiłem literkę na końcu").
+- Two-step retrieval: search returns only metadata → fetch full body using `getMessages` with `ids` array parameter.
+- Error `-970` means confirmation_code format is wrong (not exactly 36 chars). Error `-960` means values are factually wrong.
+- Searching for password uses Polish: `hasło` not `password`.
+
 ### `data/suspects.json`
 
 You usually do not need to create this file manually anymore, because `bin/run` writes it for you.
@@ -455,6 +492,7 @@ bin/week_1/railway_5       # Lesson 5: railway
 bin/week_2/categorize_6    # Lesson 6: categorize
 bin/week_2/electricity_7   # Lesson 7: electricity
 bin/week_2/failure_8       # Lesson 8: failure
+LLM_MODEL=gpt-4o-mini bin/week_2/mailbox_9  # Lesson 9: mailbox
 ```
 
 ## Notes
@@ -465,6 +503,7 @@ bin/week_2/failure_8       # Lesson 8: failure
 - `sendit` uses recursive document discovery plus image text extraction to reconstruct the exact declaration string from the SPK docs.
 - `railway` uses a deterministic state machine with raw header logging, exponential backoff for `503`, and cooldown handling for the API's strict limits.
 - `failure` uses deterministic log compression plus hub feedback iteration to stay under the 1500-token limit while preserving the root-cause timeline.
+- `mailbox` uses a Function Calling agent loop to search a live email inbox via the zmail API; the agent first calls `help`, then searches with Polish keywords (`hasło`) and Gmail-style operators, fetches full message bodies by ID, and handles a correction email where the SEC confirmation code had a typo (missing final char).
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.
