@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Tasks
-  class DroneTask
+  class EvaluationTask
     def initialize(runner:)
       @runner = runner
     end

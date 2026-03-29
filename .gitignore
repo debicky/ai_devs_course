@@ -62,3 +62,6 @@ build-iPhoneSimulator/
 # Proxy session storage
 /data/proxy_sessions/
 
+# Sensor data cache (downloaded from hub, ~10k files)
+/data/sensors/
+

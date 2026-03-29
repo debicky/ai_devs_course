@@ -66,3 +66,11 @@ require_relative '../app/s02/tasks/electricity_task'
 require_relative '../app/s02/tasks/mailbox_task'
 require_relative '../app/s02/tasks/failure_task'
 require_relative '../app/s02/tasks/drone_task'
+
+# S03 — Week 3 Services
+require_relative '../app/s03/services/evaluation/sensor_validator'
+require_relative '../app/s03/services/evaluation/note_classifier'
+require_relative '../app/s03/services/evaluation/runner'
+
+# S03 — Week 3 Tasks
+require_relative '../app/s03/tasks/evaluation_task'

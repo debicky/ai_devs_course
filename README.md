@@ -20,6 +20,10 @@ Lesson mapping:
 - Lesson 9: `bin/week_2/mailbox_9` (`mailbox`) — **`{FLG:TRAITOR}`**
 - Lesson 10: `bin/week_2/drone_10` (`drone`) — **`{FLG:LETSFLY}`**
 
+### Week 3
+
+- Lesson 11: `bin/week_3/evaluation_11` (`evaluation`)
+
 ## Lesson notes
 
 Source lesson markdowns are stored in `docs/lessons/` for quick reference:
@@ -34,6 +38,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 8 / `failure` / `bin/week_2/failure_8` → [`docs/lessons/lesson-08-failure.md`](docs/lessons/lesson-08-failure.md)
 - Lesson 9 / `mailbox` / `bin/week_2/mailbox_9` → [`docs/lessons/lesson-09-mailbox.md`](docs/lessons/lesson-09-mailbox.md)
 - Lesson 10 / `drone` / `bin/week_2/drone_10` → [`docs/lessons/lesson-10-drone.md`](docs/lessons/lesson-10-drone.md)
+- Lesson 11 / `evaluation` / `bin/week_3/evaluation_11` → [`docs/lessons/lesson-11-evaluation.md`](docs/lessons/lesson-11-evaluation.md)
 
 ## Structure
 
@@ -49,6 +54,8 @@ bin/
     categorize_6                  # Lesson 6: categorize task entrypoint
     electricity_7                 # Lesson 7: electricity puzzle entrypoint
     failure_8                     # Lesson 8: failure log compression entrypoint
+  week_3/
+    evaluation_11                 # Lesson 11: sensor anomaly detection entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -61,6 +68,7 @@ docs/
     lesson-08-failure.md          # lesson note / source material (week 2)
     lesson-09-mailbox.md          # lesson note / source material (week 2)
     lesson-10-drone.md            # lesson note / source material (week 2)
+    lesson-11-evaluation.md       # lesson note / source material (week 3)
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -106,10 +114,23 @@ app/
         runner.rb                 # orchestrate: download, compare, rotate
       failure/
         runner.rb                 # compress + iterate on technician feedback
+      mailbox/
+        tool_executor.rb          # zmail API tool dispatcher
+        runner.rb                 # function-calling agent loop
+      drone/
+        runner.rb                 # vision map analysis + reactive search loop
     tasks/
       categorize_task.rb
       electricity_task.rb
       failure_task.rb
+      mailbox_task.rb
+      drone_task.rb
+  s03/                            # Week 3
+    services/
+      evaluation/
+        runner.rb                 # sensor anomaly detection
+    tasks/
+      evaluation_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -523,6 +544,9 @@ bin/week_2/electricity_7   # Lesson 7: electricity
 bin/week_2/failure_8       # Lesson 8: failure
 LLM_MODEL=gpt-4o-mini bin/week_2/mailbox_9  # Lesson 9: mailbox
 bin/week_2/drone_10                         # Lesson 10: drone (uses gpt-4o for vision)
+
+# Week 3
+bin/week_3/evaluation_11                    # Lesson 11: sensor anomaly detection
 ```
 
 ## Notes
@@ -535,6 +559,7 @@ bin/week_2/drone_10                         # Lesson 10: drone (uses gpt-4o for 
 - `failure` uses deterministic log compression plus hub feedback iteration to stay under the 1500-token limit while preserving the root-cause timeline.
 - `mailbox` uses a Function Calling agent loop to search a live email inbox via the zmail API; the agent first calls `help`, then searches with Polish keywords (`hasło`) and Gmail-style operators, fetches full message bodies by ID, and handles a correction email where the SEC confirmation code had a typo (missing final char).
 - `drone` uses a two-step approach: a vision model (`gpt-4o`) analyzes the drone map PNG to locate the dam sector grid coordinates, then a reactive loop builds and submits flight instructions — setting the official destination to the power plant (`setDestinationObject(PWR6132PL)`) while setting the actual landing sector to the dam (`set(col,row)`) for the bomb drop.
+- `evaluation` downloads ~10,000 sensor JSON files, detects out-of-range values and wrong-field readings programmatically (no LLM), then batches only the ambiguous operator-notes cases to an LLM with a deduplication cache — minimising token spend before submitting all anomaly IDs to `/verify`.
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.

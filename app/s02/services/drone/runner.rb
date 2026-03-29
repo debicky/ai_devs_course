@@ -38,15 +38,15 @@ module Services
 
       def call
         log('Step 1: Analyzing map image for dam location...')
-        origin = analyze_map.freeze          # vision estimate — never mutated
+        origin = analyze_map.freeze # vision estimate — never mutated
         log("Initial dam estimate: col=#{origin[:col]}, row=#{origin[:row]}")
 
-        instructions  = build_instructions(origin[:col], origin[:row])
+        instructions = build_instructions(origin[:col], origin[:row])
         log("Initial instructions: #{instructions.inspect}")
 
         last_error    = nil
-        skip_cells    = Set.new               # cells confirmed as NOT the dam
-        search_queue  = SEARCH_OFFSETS.dup   # offsets relative to origin
+        skip_cells    = Set.new # cells confirmed as NOT the dam
+        search_queue  = SEARCH_OFFSETS.dup # offsets relative to origin
 
         MAX_ITERATIONS.times do |i|
           iteration = i + 1
@@ -93,14 +93,14 @@ module Services
 
       def build_instructions(col, row)
         [
-          "setDestinationObject(PWR6132PL)",
+          'setDestinationObject(PWR6132PL)',
           "set(#{col},#{row})",
-          "set(destroy)",
-          "set(return)",
-          "set(engineON)",
-          "set(100%)",
-          "set(50m)",
-          "flyToLocation"
+          'set(destroy)',
+          'set(return)',
+          'set(engineON)',
+          'set(100%)',
+          'set(50m)',
+          'flyToLocation'
         ]
       end
 
@@ -108,22 +108,22 @@ module Services
         # Extract current target cell from instructions (set(col,row))
         current_cell = current.map { |s| s.match(/\Aset\((\d+),(\d+)\)\z/) }
                               .compact.first
-        if current_cell
-          skip_cells << [current_cell[1].to_i, current_cell[2].to_i]
-        end
+        skip_cells << [current_cell[1].to_i, current_cell[2].to_i] if current_cell
 
         # "nearby" / dam miss / power-plant hit → next candidate from search queue
-        if error.downcase.include?("nearby") || error.downcase.include?("dam") ||
-           error.downcase.include?("power plant") || error.downcase.include?("pretending")
+        if error.downcase.include?('nearby') || error.downcase.include?('dam') ||
+           error.downcase.include?('power plant') || error.downcase.include?('pretending')
 
           # Pop offsets until we find one that isn't a known skip
-          next_col, next_row = nil, nil
+          next_col = nil
+          next_row = nil
           while (offset = search_queue.shift)
             c = [1, origin[:col] + offset[0]].max
             r = [1, origin[:row] + offset[1]].max
             next if skip_cells.include?([c, r])
 
-            next_col, next_row = c, r
+            next_col = c
+            next_row = r
             break
           end
 
@@ -131,18 +131,18 @@ module Services
             log("Trying offset → col=#{next_col}, row=#{next_row}")
             return build_instructions(next_col, next_row)
           else
-            log("Search offsets exhausted — nothing left to try")
+            log('Search offsets exhausted — nothing left to try')
             return current
           end
         end
 
         # "lose" / return missing → add set(return)
-        if error.downcase.include?("return") || error.downcase.include?("lose")
-          unless current.include?("set(return)")
-            log("Adding set(return)")
-            idx = (current.index { |s| s.start_with?("set(destroy)") } ||
-                   current.index { |s| s == "flyToLocation" } || -1)
-            current.insert(idx, "set(return)")
+        if error.downcase.include?('return') || error.downcase.include?('lose')
+          unless current.include?('set(return)')
+            log('Adding set(return)')
+            idx = current.index { |s| s.start_with?('set(destroy)') } ||
+                  current.index { |s| s == 'flyToLocation' } || -1
+            current.insert(idx, 'set(return)')
           end
           return current
         end
@@ -168,7 +168,7 @@ module Services
         content = resp['content'].to_s.strip
         log("LLM fix: #{content}")
         match = content.match(/\[.*\]/m)
-        raise "No JSON array in LLM response" unless match
+        raise 'No JSON array in LLM response' unless match
 
         JSON.parse(match[0])
       rescue JSON::ParserError, RuntimeError => e
@@ -192,7 +192,3 @@ module Services
     end
   end
 end
-
-
-
-

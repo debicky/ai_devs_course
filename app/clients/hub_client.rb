@@ -15,6 +15,7 @@ module Clients
     FAILURE_LOG_PATH     = '/data/%<api_key>s/failure.log'
     DRONE_PNG_PATH       = '/data/%<api_key>s/drone.png'
     DRONE_DOCS_URL       = 'https://hub.ag3nts.org/dane/drone.html'
+    SENSORS_ZIP_URL      = 'https://hub.ag3nts.org/dane/sensors.zip'
     ZMAIL_PATH           = '/api/zmail'
 
     def initialize(http_client:)
@@ -54,6 +55,10 @@ module Clients
 
     def fetch_drone_docs
       @http_client.get(DRONE_DOCS_URL).body
+    end
+
+    def fetch_sensors_zip
+      @http_client.get(SENSORS_ZIP_URL).body
     end
 
     def fetch_people_csv
