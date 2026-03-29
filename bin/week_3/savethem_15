@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../../config/environment'
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+required_env!('AG3NTS_API_KEY')
+
+api_key     = ENV['AG3NTS_API_KEY']
+http_client = Clients::HttpClient.new(open_timeout: 30, read_timeout: 60)
+hub_client  = Clients::HubClient.new(http_client: http_client)
+tool_client = Services::Savethem::ToolClient.new(http_client: http_client, api_key: api_key)
+runner      = Services::Savethem::Runner.new(hub_client: hub_client, tool_client: tool_client)
+task        = Tasks::SavethemTask.new(runner: runner)
+
+puts '→ Running savethem task...'
+result = task.call
+
+puts
+puts "Answer:       #{result[:answer].inspect}"
+puts "Verification: #{result[:verification].inspect}"
+puts "Flag:         #{result[:flag]}"
