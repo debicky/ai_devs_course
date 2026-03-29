@@ -16,6 +16,7 @@ Lesson mapping:
 
 - Lesson 6: `bin/week_2/categorize_6` (`categorize`)
 - Lesson 7: `bin/week_2/electricity_7` (`electricity`)
+- Lesson 8: `bin/week_2/failure_8` (`failure`)
 
 ## Lesson notes
 
@@ -92,9 +93,8 @@ app/
       categorize/
         runner.rb                 # prompt-engineering classifier loop
       electricity/
-        board_reader.rb           # vision-based PNG grid analysis
-        rotation_solver.rb        # compute rotations from current to target
-        runner.rb                 # orchestrate: read, solve, rotate, verify
+        pixel_solver.rb           # ImageMagick pixel comparison solver
+        runner.rb                 # orchestrate: download, compare, rotate
     tasks/
       categorize_task.rb
       electricity_task.rb
@@ -138,7 +138,7 @@ Model selection stays in each run file. You can override it temporarily with `LL
   - requires `AG3NTS_API_KEY`
 - `bin/week_2/electricity_7`
   - requires `AG3NTS_API_KEY`
-  - requires `OPENAI_API_KEY` (vision model for PNG analysis)
+  - requires `magick` (ImageMagick 7) on PATH
 
 ## Lesson 1 / Task 1: `people` (`bin/week_1/run_1`)
 
@@ -363,14 +363,12 @@ This task solves a 3x3 cable-routing puzzle to power three nuclear plants.
 
 What `bin/week_2/electricity_7` does:
 
-1. resets the puzzle board via `electricity.png?reset=1`
-2. downloads the current board PNG and the solved target PNG
-3. uses a vision model to describe cable directions on each of the 9 cells
-4. compares current vs target to compute needed rotations (0-3 per cell)
+1. downloads the solved target PNG (static, fetched once)
+2. resets the puzzle board via `electricity.png?reset=1`
+3. downloads the current board PNG
+4. uses ImageMagick pixel comparison to find how many rotations each cell needs (no vision model)
 5. sends rotation commands to `/verify` with `{ "rotate": "AxB" }`
-6. re-reads the board after rotations and verifies
-7. retries if the board doesn't match the target
-8. returns the flag when the board is solved
+6. returns the flag when the board is solved
 
 Run it with:
 
@@ -381,10 +379,11 @@ bin/week_2/electricity_7
 
 Notes:
 
-- Uses a vision-capable model (defaults to `gpt-4o`) to interpret the PNG grid.
-- Each cell's cables are described by edge directions: U(p), D(own), L(eft), R(ight).
-- A 90-degree clockwise rotation maps U->R, R->D, D->L, L->U.
-- The solver computes how many rotations transform current edges into target edges.
+- No LLM or vision model is used. The solver is pure pixel comparison via ImageMagick.
+- Both images are thresholded to B&W and trimmed to the same content area, which normalises them to identical grid coordinates regardless of original image size.
+- Each of the 9 cells is cropped individually, then the current cell is rotated 0-3 times (90 degrees clockwise each) and compared pixel-by-pixel (MAE) with the solved cell. The rotation with the lowest error wins.
+- Vision models (gpt-4o, Gemini) were tried first but proved unreliable — they consistently misread the bottom row of the grid, confusing cable corners with straights. Splitting the image into individual cells and using direct pixel comparison solved the problem on the first attempt.
+- Requires `magick` (ImageMagick 7) on PATH.
 
 ### `data/suspects.json`
 
