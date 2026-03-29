@@ -29,9 +29,7 @@ module Services
           items = fetch_items
           result = classify_all(items)
 
-          if result[:flag]
-            return { verification: result[:last_response], flag: result[:flag] }
-          end
+          return { verification: result[:last_response], flag: result[:flag] } if result[:flag]
 
           puts "  Classification failed: #{result[:error]}"
           puts '  Retrying...'
@@ -67,9 +65,7 @@ module Services
           flag = extract_flag(response)
           return { flag: flag, last_response: response } if flag
 
-          if error?(response)
-            return { error: response, last_response: response }
-          end
+          return { error: response, last_response: response } if error?(response)
         end
 
         { error: 'No flag received after all items', last_response: nil }

@@ -136,6 +136,9 @@ Model selection stays in each run file. You can override it temporarily with `LL
   - requires `AG3NTS_API_KEY`
 - `bin/week_2/categorize_6`
   - requires `AG3NTS_API_KEY`
+- `bin/week_2/electricity_7`
+  - requires `AG3NTS_API_KEY`
+  - requires `OPENAI_API_KEY` (vision model for PNG analysis)
 
 ## Lesson 1 / Task 1: `people` (`bin/week_1/run_1`)
 
@@ -354,6 +357,35 @@ Notes:
 - Variable data (item id, description) goes at the end of the prompt.
 - `bin/week_2/categorize_6` does not require an LLM beyond the hub's internal model.
 
+## Lesson 7 / Task 7: `electricity` (`bin/week_2/electricity_7`)
+
+This task solves a 3x3 cable-routing puzzle to power three nuclear plants.
+
+What `bin/week_2/electricity_7` does:
+
+1. resets the puzzle board via `electricity.png?reset=1`
+2. downloads the current board PNG and the solved target PNG
+3. uses a vision model to describe cable directions on each of the 9 cells
+4. compares current vs target to compute needed rotations (0-3 per cell)
+5. sends rotation commands to `/verify` with `{ "rotate": "AxB" }`
+6. re-reads the board after rotations and verifies
+7. retries if the board doesn't match the target
+8. returns the flag when the board is solved
+
+Run it with:
+
+```bash
+chmod +x bin/week_2/electricity_7
+bin/week_2/electricity_7
+```
+
+Notes:
+
+- Uses a vision-capable model (defaults to `gpt-4o`) to interpret the PNG grid.
+- Each cell's cables are described by edge directions: U(p), D(own), L(eft), R(ight).
+- A 90-degree clockwise rotation maps U->R, R->D, D->L, L->U.
+- The solver computes how many rotations transform current edges into target edges.
+
 ### `data/suspects.json`
 
 You usually do not need to create this file manually anymore, because `bin/run` writes it for you.
@@ -386,6 +418,7 @@ bin/week_1/railway_5       # Lesson 5: railway
 
 # Week 2
 bin/week_2/categorize_6    # Lesson 6: categorize
+bin/week_2/electricity_7   # Lesson 7: electricity
 ```
 
 ## Notes

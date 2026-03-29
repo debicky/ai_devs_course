@@ -45,9 +45,7 @@ module Services
       def follow_sequence(status_response)
         response = status_response
 
-        if response['mode'] == NORMAL_MODE
-          response = request_json!(action: 'reconfigure', route: @route)
-        end
+        response = request_json!(action: 'reconfigure', route: @route) if response['mode'] == NORMAL_MODE
 
         if response['mode'] == RECONFIGURE_MODE && response['status'] == CLOSED_STATUS
           response = request_json!(action: 'setstatus', route: @route, value: OPEN_VALUE)
@@ -61,7 +59,8 @@ module Services
         final_status = request_json!(action: 'getstatus', route: @route)
         return final_status if extract_flag(final_status)
 
-        raise ArgumentError, "Route #{@route} processed but no flag was returned. Final response: #{final_status.inspect}"
+        raise ArgumentError,
+              "Route #{@route} processed but no flag was returned. Final response: #{final_status.inspect}"
       end
 
       def validate_help!(response)
@@ -186,5 +185,3 @@ module Services
     end
   end
 end
-
-

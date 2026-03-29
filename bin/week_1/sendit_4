@@ -55,5 +55,3 @@ puts result.fetch(:declaration)
 puts
 puts 'Verification result:'
 puts JSON.pretty_generate(result.fetch(:verification))
-
-

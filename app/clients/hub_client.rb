@@ -10,10 +10,27 @@ module Clients
     ACCESS_LEVEL_PATH    = '/api/accesslevel'
     VERIFY_PATH          = '/verify'
     CATEGORIZE_CSV_PATH  = '/data/%<api_key>s/categorize.csv'
+    ELECTRICITY_PNG_PATH = '/data/%<api_key>s/electricity.png'
+    SOLVED_ELECTRICITY   = '/i/solved_electricity.png'
 
     def initialize(http_client:)
       @http_client = http_client
       @api_key     = fetch_api_key
+    end
+
+    def electricity_png_url(reset: false)
+      path = format(ELECTRICITY_PNG_PATH, api_key: @api_key)
+      url = "#{BASE_URL}#{path}"
+      url += '?reset=1' if reset
+      url
+    end
+
+    def solved_electricity_png_url
+      "#{BASE_URL}#{SOLVED_ELECTRICITY}"
+    end
+
+    def fetch_electricity_png(reset: false)
+      @http_client.get(electricity_png_url(reset: reset)).body
     end
 
     def fetch_categorize_csv

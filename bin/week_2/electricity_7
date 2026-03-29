@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../../config/environment'
+
+MODEL = ENV.fetch('LLM_MODEL', 'gpt-4o')
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+def step(label)
+  print "→ #{label}... "
+  result = yield
+  puts 'done'
+  result
+end
+
+required_env!('AG3NTS_API_KEY')
+openai_key = required_env!('OPENAI_API_KEY')
+
+puts "Using vision model: #{MODEL}"
+
+http_client  = Clients::HttpClient.new(open_timeout: 30, read_timeout: 120)
+hub_client   = Clients::HubClient.new(http_client: http_client)
+llm_client   = Clients::LlmClient.new(http_client: http_client, api_key: openai_key, model: MODEL)
+board_reader = Services::Electricity::BoardReader.new(llm_client: llm_client)
+solver       = Services::Electricity::RotationSolver.new
+runner       = Services::Electricity::Runner.new(hub_client: hub_client, board_reader: board_reader, solver: solver)
+task         = Tasks::ElectricityTask.new(runner: runner)
+
+result = step('Running electricity task') { task.call }
+
+puts
+puts 'Verification result:'
+puts JSON.pretty_generate(result.fetch(:verification))
+puts
+puts "Flag: #{result.fetch(:flag)}"

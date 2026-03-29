@@ -6,7 +6,6 @@ require_relative '../../config/environment'
 OPEN_TIMEOUT = 30
 READ_TIMEOUT = 120
 
-
 def required_env!(name)
   value = ENV[name].to_s.strip
   return value unless value.empty?
@@ -35,4 +34,3 @@ puts 'Verification result:'
 puts JSON.pretty_generate(result.fetch(:verification))
 puts
 puts "Flag: #{result.fetch(:flag)}"
-
