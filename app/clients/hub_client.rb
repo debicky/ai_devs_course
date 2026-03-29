@@ -16,6 +16,7 @@ module Clients
     DRONE_PNG_PATH       = '/data/%<api_key>s/drone.png'
     DRONE_DOCS_URL       = 'https://hub.ag3nts.org/dane/drone.html'
     SENSORS_ZIP_URL      = 'https://hub.ag3nts.org/dane/sensors.zip'
+    SHELL_PATH           = '/api/shell'
     ZMAIL_PATH           = '/api/zmail'
 
     def initialize(http_client:)
@@ -59,6 +60,14 @@ module Clients
 
     def fetch_sensors_zip
       @http_client.get(SENSORS_ZIP_URL).body
+    end
+
+    def shell_cmd(cmd:)
+      payload  = { apikey: @api_key, cmd: cmd.to_s }
+      response = @http_client.post_json_raw("#{BASE_URL}#{SHELL_PATH}", payload: payload)
+      { code: response.code.to_i, body: response.body.to_s }
+    rescue StandardError => e
+      { code: -1, body: "HTTP error: #{e.message}" }
     end
 
     def fetch_people_csv

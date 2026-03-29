@@ -23,6 +23,7 @@ Lesson mapping:
 ### Week 3
 
 - Lesson 11: `bin/week_3/evaluation_11` (`evaluation`)
+- Lesson 12: `bin/week_3/firmware_12` (`firmware`)
 
 ## Lesson notes
 
@@ -39,6 +40,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 9 / `mailbox` / `bin/week_2/mailbox_9` → [`docs/lessons/lesson-09-mailbox.md`](docs/lessons/lesson-09-mailbox.md)
 - Lesson 10 / `drone` / `bin/week_2/drone_10` → [`docs/lessons/lesson-10-drone.md`](docs/lessons/lesson-10-drone.md)
 - Lesson 11 / `evaluation` / `bin/week_3/evaluation_11` → [`docs/lessons/lesson-11-evaluation.md`](docs/lessons/lesson-11-evaluation.md)
+- Lesson 12 / `firmware` / `bin/week_3/firmware_12` → [`docs/lessons/lesson-12-firmware.md`](docs/lessons/lesson-12-firmware.md)
 
 ## Structure
 
@@ -56,6 +58,7 @@ bin/
     failure_8                     # Lesson 8: failure log compression entrypoint
   week_3/
     evaluation_11                 # Lesson 11: sensor anomaly detection entrypoint
+    firmware_12                   # Lesson 12: VM shell agent entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -128,9 +131,15 @@ app/
   s03/                            # Week 3
     services/
       evaluation/
-        runner.rb                 # sensor anomaly detection
+        sensor_validator.rb       # programmatic range + inactive-field checks
+        note_classifier.rb        # LLM batch note sentiment with dedup cache
+        runner.rb                 # orchestrate: download, validate, classify, submit
+      firmware/
+        tool_executor.rb          # execute_shell + submit_answer tools
+        runner.rb                 # Function Calling agent loop for VM shell
     tasks/
       evaluation_task.rb
+      firmware_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -547,6 +556,7 @@ bin/week_2/drone_10                         # Lesson 10: drone (uses gpt-4o for 
 
 # Week 3
 bin/week_3/evaluation_11                    # Lesson 11: sensor anomaly detection
+LLM_MODEL=anthropic/claude-sonnet-4-6 bin/week_3/firmware_12  # Lesson 12: VM firmware shell agent
 ```
 
 ## Notes
@@ -560,6 +570,7 @@ bin/week_3/evaluation_11                    # Lesson 11: sensor anomaly detectio
 - `mailbox` uses a Function Calling agent loop to search a live email inbox via the zmail API; the agent first calls `help`, then searches with Polish keywords (`hasło`) and Gmail-style operators, fetches full message bodies by ID, and handles a correction email where the SEC confirmation code had a typo (missing final char).
 - `drone` uses a two-step approach: a vision model (`gpt-4o`) analyzes the drone map PNG to locate the dam sector grid coordinates, then a reactive loop builds and submits flight instructions — setting the official destination to the power plant (`setDestinationObject(PWR6132PL)`) while setting the actual landing sector to the dam (`set(col,row)`) for the bomb drop.
 - `evaluation` downloads ~10,000 sensor JSON files, detects out-of-range values and wrong-field readings programmatically (no LLM), then batches only the ambiguous operator-notes cases to an LLM with a deduplication cache — minimising token spend before submitting all anomaly IDs to `/verify`.
+- `firmware` uses a Function Calling agent loop to drive a remote VM shell; the agent calls `execute_shell(cmd)` to explore the filesystem, find the password and fix `settings.ini`, then runs the cooler binary to obtain the `ECCS-` code and submits it via `submit_answer`.
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.

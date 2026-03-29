@@ -72,5 +72,9 @@ require_relative '../app/s03/services/evaluation/sensor_validator'
 require_relative '../app/s03/services/evaluation/note_classifier'
 require_relative '../app/s03/services/evaluation/runner'
 
+require_relative '../app/s03/services/firmware/tool_executor'
+require_relative '../app/s03/services/firmware/runner'
+
 # S03 — Week 3 Tasks
 require_relative '../app/s03/tasks/evaluation_task'
+require_relative '../app/s03/tasks/firmware_task'
