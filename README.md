@@ -24,6 +24,8 @@ Lesson mapping:
 
 - Lesson 11: `bin/week_3/evaluation_11` (`evaluation`)
 - Lesson 12: `bin/week_3/firmware_12` (`firmware`)
+- Lesson 13: `bin/week_3/reactor_13` (`reactor`) — **`{FLG:INSTALLED}`**
+- Lesson 14: `bin/week_3/negotiations_14` (`negotiations`) — **`{FLG:WINDFARM}`**
 
 ## Lesson notes
 
@@ -41,6 +43,8 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 10 / `drone` / `bin/week_2/drone_10` → [`docs/lessons/lesson-10-drone.md`](docs/lessons/lesson-10-drone.md)
 - Lesson 11 / `evaluation` / `bin/week_3/evaluation_11` → [`docs/lessons/lesson-11-evaluation.md`](docs/lessons/lesson-11-evaluation.md)
 - Lesson 12 / `firmware` / `bin/week_3/firmware_12` → [`docs/lessons/lesson-12-firmware.md`](docs/lessons/lesson-12-firmware.md)
+- Lesson 13 / `reactor` / `bin/week_3/reactor_13` → [`docs/lessons/lesson-13-reactor.md`](docs/lessons/lesson-13-reactor.md)
+- Lesson 14 / `negotiations` / `bin/week_3/negotiations_14` → [`docs/lessons/lesson-14-negotiations.md`](docs/lessons/lesson-14-negotiations.md)
 
 ## Structure
 
@@ -59,6 +63,8 @@ bin/
   week_3/
     evaluation_11                 # Lesson 11: sensor anomaly detection entrypoint
     firmware_12                   # Lesson 12: VM shell agent entrypoint
+    reactor_13                    # Lesson 13: deterministic reactor runner entrypoint
+    negotiations_14               # Lesson 14: public negotiations tool server
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -72,6 +78,9 @@ docs/
     lesson-09-mailbox.md          # lesson note / source material (week 2)
     lesson-10-drone.md            # lesson note / source material (week 2)
     lesson-11-evaluation.md       # lesson note / source material (week 3)
+    lesson-12-firmware.md         # lesson note / source material (week 3)
+    lesson-13-reactor.md          # lesson note / source material (week 3)
+    lesson-14-negotiations.md     # lesson note / source material (week 3)
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -137,9 +146,22 @@ app/
       firmware/
         tool_executor.rb          # execute_shell + submit_answer tools
         runner.rb                 # Function Calling agent loop for VM shell
+      negotiations/
+        catalog_index.rb          # CSV cache + in-memory item/city index
+        item_matcher.rb           # natural-language item matching
+        search_tool.rb            # compact tool output for the external agent
+        http_server.rb            # public POST endpoint exposed via tunnel
+        runner.rb                 # register tools and poll async verification
+      reactor/
+        block.rb                  # one moving 2-cell reactor block
+        state_parser.rb           # parse hub responses into board state
+        navigator.rb              # BFS planner over future board phases
+        runner.rb                 # deterministic plan + execution loop
     tasks/
       evaluation_task.rb
       firmware_task.rb
+      negotiations_task.rb
+      reactor_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -183,6 +205,17 @@ Model selection stays in each run file. You can override it temporarily with `LL
   - requires `magick` (ImageMagick 7) on PATH
 - `bin/week_2/failure_8`
   - requires `AG3NTS_API_KEY`
+- `bin/week_3/evaluation_11`
+  - requires `AG3NTS_API_KEY`
+  - requires `OPENAI_API_KEY` or `OPENROUTER_API_KEY`
+- `bin/week_3/firmware_12`
+  - requires `AG3NTS_API_KEY`
+  - requires `OPENAI_API_KEY` or `OPENROUTER_API_KEY`
+- `bin/week_3/reactor_13`
+  - requires `AG3NTS_API_KEY`
+- `bin/week_3/negotiations_14`
+  - requires `AG3NTS_API_KEY`
+  - requires a public URL via `PUBLIC_BASE_URL` or a working local `ngrok` installation
 
 ## Lesson 1 / Task 1: `people` (`bin/week_1/run_1`)
 
@@ -535,6 +568,43 @@ Notes:
 - Reactive loop: API error messages are fed back to the text LLM to generate corrected instructions.
 - `hardReset` is used automatically if state corruption is detected (errors mention prior config).
 
+## Lesson 13 / Task 13: `reactor` (`bin/week_3/reactor_13`)
+
+**Flag: `{FLG:INSTALLED}`**
+
+What `bin/week_3/reactor_13` does:
+
+1. Sends `start` (or `reset` on retry) to fetch the live 7x5 board state.
+2. Parses the returned `player`, `goal`, and moving `blocks` metadata.
+3. Models each 2-cell vertical reactor block as a deterministic 6-phase cycle.
+4. Runs BFS over `(player_col, phase)` using only `left`, `wait`, and `right`.
+5. Chooses a command only when the destination cell on the **next** board state is safe.
+6. Replays the computed plan against the live API until the hub returns the flag.
+
+Notes:
+- The safest model is: blocks move every command, and collision is checked against the **next** board state.
+- `left` at the left boundary behaves like a wait for the player, but still advances all blocks.
+- No LLM is needed for this task; the solver is fully deterministic and stress-tested against many randomized boards.
+
+## Lesson 14 / Task 14: `negotiations` (`bin/week_3/negotiations_14`)
+
+**Flag: `{FLG:WINDFARM}`**
+
+What `bin/week_3/negotiations_14` does:
+
+1. Downloads and caches `cities.csv`, `items.csv`, and `connections.csv` from `s03e04_csv`.
+2. Builds an in-memory index of item names, item codes, and city availability.
+3. Exposes one public HTTP tool that accepts `{ "params": "..." }`.
+4. Matches natural-language item descriptions to exact catalog items.
+5. For multiple comma-separated items, returns only cities common to all matched items.
+6. Registers the public tool URL with `/verify` and polls `answer.action = "check"` asynchronously until the hub returns a flag.
+
+Notes:
+- One tool is enough here because it supports both single-item lookup and multi-item intersection.
+- Tool responses are deliberately short (4–500 bytes) so the external agent stays within the task limits.
+- If `PUBLIC_BASE_URL` is not provided, the runner attempts to expose the local server with `ngrok` automatically.
+- Verified result returned by the hub: `cities = ["Domatowo", "Skolwin"]`.
+
 ## Quick-run examples
 
 ```bash
@@ -557,6 +627,8 @@ bin/week_2/drone_10                         # Lesson 10: drone (uses gpt-4o for 
 # Week 3
 bin/week_3/evaluation_11                    # Lesson 11: sensor anomaly detection
 LLM_MODEL=anthropic/claude-sonnet-4-6 bin/week_3/firmware_12  # Lesson 12: VM firmware shell agent
+bin/week_3/reactor_13                       # Lesson 13: deterministic reactor solver
+bin/week_3/negotiations_14                  # Lesson 14: public negotiations tool server
 ```
 
 ## Notes
@@ -571,6 +643,8 @@ LLM_MODEL=anthropic/claude-sonnet-4-6 bin/week_3/firmware_12  # Lesson 12: VM fi
 - `drone` uses a two-step approach: a vision model (`gpt-4o`) analyzes the drone map PNG to locate the dam sector grid coordinates, then a reactive loop builds and submits flight instructions — setting the official destination to the power plant (`setDestinationObject(PWR6132PL)`) while setting the actual landing sector to the dam (`set(col,row)`) for the bomb drop.
 - `evaluation` downloads ~10,000 sensor JSON files, detects out-of-range values and wrong-field readings programmatically (no LLM), then batches only the ambiguous operator-notes cases to an LLM with a deduplication cache — minimising token spend before submitting all anomaly IDs to `/verify`.
 - `firmware` uses a Function Calling agent loop to drive a remote VM shell; the agent calls `execute_shell(cmd)` to explore the filesystem, find the password and fix `settings.ini`, then runs the cooler binary to obtain the `ECCS-` code and submits it via `submit_answer`.
+- `reactor` is fully deterministic: it parses the live board, simulates each block's 6-step motion cycle, plans a safe path with BFS over future phases, and executes the resulting `left` / `wait` / `right` sequence to reach column 7 without being crushed.
+- `negotiations` exposes a compact public HTTP tool over the `s03e04_csv` dataset; it fuzzy-matches natural-language item requests to exact catalog entries and returns the cities that sell one item or the cities common to multiple requested items, then polls the asynchronous verification flow with `action: "check"`.
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.

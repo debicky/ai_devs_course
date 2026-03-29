@@ -30,7 +30,7 @@ module Services
     end
 
     class StateParser
-      FLAG_REGEX = /\{FLG:[^}]+\}/.freeze
+      FLAG_REGEX = /\{FLG:[^}]+}/.freeze
 
       def parse(response)
         body = JSON.parse(response.body.to_s)

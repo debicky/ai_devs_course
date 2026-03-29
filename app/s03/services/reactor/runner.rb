@@ -25,6 +25,8 @@ module Services
           log("planned #{plan.length} moves: #{plan.join(' ')}")
 
           final_state = execute_plan(plan)
+          raise 'plan execution returned no final state' if final_state.nil?
+
           if final_state.terminal_flag?
             return {
               flag: final_state.flag,

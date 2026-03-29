@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../../config/environment'
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+required_env!('AG3NTS_API_KEY')
+
+port = Integer(ENV.fetch('PORT', '3001'))
+public_base_url = ENV['PUBLIC_BASE_URL']
+
+http_client = Clients::HttpClient.new(open_timeout: 30, read_timeout: 120)
+hub_client  = Clients::HubClient.new(http_client: http_client)
+catalog     = Services::Negotiations::CatalogIndex.new(hub_client: hub_client).load
+search_tool = Services::Negotiations::SearchTool.new(catalog_index: catalog)
+runner      = Services::Negotiations::Runner.new(
+  hub_client: hub_client,
+  search_tool: search_tool,
+  port: port,
+  public_base_url: public_base_url
+)
+task = Tasks::NegotiationsTask.new(runner: runner)
+
+puts "→ Running negotiations task on port #{port}..."
+result = task.call
+
+puts
+puts "Tool URL:      #{result[:tool_url]}"
+puts "Verification:  #{result[:verification].inspect}"
+puts "Flag:          #{result[:flag]}"

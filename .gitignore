@@ -65,3 +65,6 @@ build-iPhoneSimulator/
 # Sensor data cache (downloaded from hub, ~10k files)
 /data/sensors/
 
+# Negotiations CSV cache
+/data/negotiations_catalog/
+

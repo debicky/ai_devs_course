@@ -16,6 +16,7 @@ module Clients
     DRONE_PNG_PATH       = '/data/%<api_key>s/drone.png'
     DRONE_DOCS_URL       = 'https://hub.ag3nts.org/dane/drone.html'
     SENSORS_ZIP_URL      = 'https://hub.ag3nts.org/dane/sensors.zip'
+    NEGOTIATIONS_CSV_BASE_URL = 'https://hub.ag3nts.org/dane/s03e04_csv/'
     SHELL_PATH           = '/api/shell'
     ZMAIL_PATH           = '/api/zmail'
 
@@ -60,6 +61,15 @@ module Clients
 
     def fetch_sensors_zip
       @http_client.get(SENSORS_ZIP_URL).body
+    end
+
+    def negotiations_csv_url(filename)
+      normalized = filename.to_s.sub(%r{\A/+}, '')
+      "#{NEGOTIATIONS_CSV_BASE_URL}#{normalized}"
+    end
+
+    def fetch_negotiations_csv(filename)
+      @http_client.get(negotiations_csv_url(filename)).body
     end
 
     def shell_cmd(cmd:)
