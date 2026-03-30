@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../../config/environment'
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+required_env!('AG3NTS_API_KEY')
+
+http_client = Clients::HttpClient.new(open_timeout: 30, read_timeout: 60)
+hub_client  = Clients::HubClient.new(http_client: http_client)
+runner      = Services::Okoeditor::Runner.new(hub_client: hub_client)
+task        = Tasks::OkoeditorTask.new(runner: runner)
+
+puts '→ Running okoeditor task...'
+result = task.call
+
+puts
+puts "Verification: #{result[:verification].inspect}"
+puts "Flag:         #{result[:flag]}"

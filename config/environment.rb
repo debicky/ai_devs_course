@@ -96,3 +96,9 @@ require_relative '../app/s03/tasks/firmware_task'
 require_relative '../app/s03/tasks/negotiations_task'
 require_relative '../app/s03/tasks/reactor_task'
 require_relative '../app/s03/tasks/savethem_task'
+
+# S04 — Week 4 Services
+require_relative '../app/s04/services/okoeditor/runner'
+
+# S04 — Week 4 Tasks
+require_relative '../app/s04/tasks/okoeditor_task'
