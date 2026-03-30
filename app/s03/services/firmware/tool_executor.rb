@@ -29,7 +29,9 @@ module Services
 
         retries = 0
         loop do
-          result = @hub_client.shell_cmd(cmd: cmd)
+          payload = { apikey: @hub_client.api_key, cmd: cmd.to_s }
+          resp = @hub_client.post_raw('/api/shell', payload)
+          result = { code: resp.code.to_i, body: resp.body.to_s }
           code   = result[:code]
           body   = result[:body]
 

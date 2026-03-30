@@ -59,7 +59,7 @@ module Services
       end
 
       def call
-        raw_log = @hub_client.fetch_failure_log
+        raw_log = @hub_client.fetch_data('failure.log')
         entries = parse_entries(raw_log)
         raise ArgumentError, 'Failure log is empty or could not be parsed' if entries.empty?
 

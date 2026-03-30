@@ -2,142 +2,53 @@
 
 module Clients
   class HubClient
-    BASE_URL             = 'https://hub.ag3nts.org'
-    DOCS_BASE_PATH       = '/dane/doc/'
-    PEOPLE_PATH          = '/data/%<api_key>s/people.csv'
-    FIND_HIM_PATH        = '/data/%<api_key>s/findhim_locations.json'
-    LOCATION_PATH        = '/api/location'
-    ACCESS_LEVEL_PATH    = '/api/accesslevel'
-    VERIFY_PATH          = '/verify'
-    CATEGORIZE_CSV_PATH  = '/data/%<api_key>s/categorize.csv'
-    ELECTRICITY_PNG_PATH = '/data/%<api_key>s/electricity.png'
-    SOLVED_ELECTRICITY   = '/i/solved_electricity.png'
-    FAILURE_LOG_PATH     = '/data/%<api_key>s/failure.log'
-    DRONE_PNG_PATH       = '/data/%<api_key>s/drone.png'
-    DRONE_DOCS_URL       = 'https://hub.ag3nts.org/dane/drone.html'
-    SENSORS_ZIP_URL      = 'https://hub.ag3nts.org/dane/sensors.zip'
-    NEGOTIATIONS_CSV_BASE_URL = 'https://hub.ag3nts.org/dane/s03e04_csv/'
-    SHELL_PATH           = '/api/shell'
-    ZMAIL_PATH           = '/api/zmail'
+    BASE_URL = 'https://hub.ag3nts.org'
+    VERIFY_PATH = '/verify'
 
     def initialize(http_client:)
       @http_client = http_client
       @api_key     = fetch_api_key
     end
 
-    def electricity_png_url(reset: false)
-      path = format(ELECTRICITY_PNG_PATH, api_key: @api_key)
-      url = "#{BASE_URL}#{path}"
-      url += '?reset=1' if reset
-      url
+    # ── Generic helpers (available to all tasks) ───────────────────────────
+
+    def get(path)
+      @http_client.get("#{BASE_URL}#{path}")
     end
 
-    def solved_electricity_png_url
-      "#{BASE_URL}#{SOLVED_ELECTRICITY}"
+    def get_body(path)
+      get(path).body
     end
 
-    def fetch_electricity_png(reset: false)
-      @http_client.get(electricity_png_url(reset: reset)).body
+    def post(path, payload)
+      @http_client.post_json("#{BASE_URL}#{path}", payload: payload)
     end
 
-    def fetch_categorize_csv
-      path = format(CATEGORIZE_CSV_PATH, api_key: @api_key)
-      @http_client.get("#{BASE_URL}#{path}").body
+    def post_raw(path, payload)
+      @http_client.post_json_raw("#{BASE_URL}#{path}", payload: payload)
     end
 
-    def fetch_failure_log
-      path = format(FAILURE_LOG_PATH, api_key: @api_key)
-      @http_client.get("#{BASE_URL}#{path}").body
+    def data_url(subpath)
+      "#{BASE_URL}/data/#{@api_key}/#{subpath}"
     end
 
-    def drone_png_url
-      path = format(DRONE_PNG_PATH, api_key: @api_key)
-      "#{BASE_URL}#{path}"
+    def fetch_data(subpath)
+      @http_client.get(data_url(subpath)).body
     end
 
-    def fetch_drone_docs
-      @http_client.get(DRONE_DOCS_URL).body
-    end
+    attr_reader :api_key
 
-    def fetch_sensors_zip
-      @http_client.get(SENSORS_ZIP_URL).body
-    end
-
-    def negotiations_csv_url(filename)
-      normalized = filename.to_s.sub(%r{\A/+}, '')
-      "#{NEGOTIATIONS_CSV_BASE_URL}#{normalized}"
-    end
-
-    def fetch_negotiations_csv(filename)
-      @http_client.get(negotiations_csv_url(filename)).body
-    end
-
-    def shell_cmd(cmd:)
-      payload  = { apikey: @api_key, cmd: cmd.to_s }
-      response = @http_client.post_json_raw("#{BASE_URL}#{SHELL_PATH}", payload: payload)
-      { code: response.code.to_i, body: response.body.to_s }
-    rescue StandardError => e
-      { code: -1, body: "HTTP error: #{e.message}" }
-    end
-
-    def fetch_people_csv
-      path = format(PEOPLE_PATH, api_key: @api_key)
-      @http_client.get("#{BASE_URL}#{path}").body
-    end
-
-    def fetch_spk_document(path:)
-      @http_client.get(spk_document_url(path)).body
-    end
-
-    def spk_document_url(path)
-      normalized_path = path.to_s.sub(%r{\A/+}, '')
-      "#{BASE_URL}#{DOCS_BASE_PATH}#{normalized_path}"
-    end
-
-    def fetch_find_him_locations
-      path = format(FIND_HIM_PATH, api_key: @api_key)
-      response = @http_client.get("#{BASE_URL}#{path}")
-      JSON.parse(response.body)
-    end
-
-    def fetch_person_locations(name:, surname:)
-      payload = {
-        apikey: @api_key,
-        name: name,
-        surname: surname
-      }
-
-      response = @http_client.post_json("#{BASE_URL}#{LOCATION_PATH}", payload: payload)
-      JSON.parse(response.body)
-    end
-
-    def fetch_access_level(name:, surname:, birth_year:)
-      payload = {
-        apikey: @api_key,
-        name: name,
-        surname: surname,
-        birthYear: Integer(birth_year)
-      }
-
-      response = @http_client.post_json("#{BASE_URL}#{ACCESS_LEVEL_PATH}", payload: payload)
-      JSON.parse(response.body)
-    end
+    # ── Verify (shared by every task) ──────────────────────────────────────
 
     def verify(task:, answer:)
       payload = { apikey: @api_key, task: task, answer: answer }
-      response = @http_client.post_json("#{BASE_URL}#{VERIFY_PATH}", payload: payload)
+      response = post(VERIFY_PATH, payload)
       JSON.parse(response.body)
     end
 
     def verify_raw(task:, answer:)
       payload = { apikey: @api_key, task: task, answer: answer }
-      @http_client.post_json_raw("#{BASE_URL}#{VERIFY_PATH}", payload: payload)
-    end
-
-    def call_zmail(action:, **extra_params)
-      payload = { apikey: @api_key, action: action }.merge(extra_params)
-      response = @http_client.post_json("#{BASE_URL}#{ZMAIL_PATH}", payload: payload)
-      JSON.parse(response.body)
+      post_raw(VERIFY_PATH, payload)
     end
 
     private

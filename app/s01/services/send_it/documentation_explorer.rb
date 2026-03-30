@@ -70,7 +70,7 @@ module Services
         return nil if value.start_with?('#')
 
         if value.start_with?('http://', 'https://')
-          docs_prefix = @hub_client.spk_document_url('')
+          docs_prefix = "#{Clients::HubClient::BASE_URL}/dane/doc/"
           return nil unless value.start_with?(docs_prefix)
 
           value = value.delete_prefix(docs_prefix)
@@ -90,7 +90,7 @@ module Services
       end
 
       def extract_image_text(path)
-        image_url = @hub_client.spk_document_url(path)
+        image_url = "#{Clients::HubClient::BASE_URL}/dane/doc/#{path}"
         @llm_client.extract_text_from_image(image_url: image_url)
       rescue StandardError => e
         warn "Image extraction via LLM failed for #{path}: #{e.message}. Falling back to local OCR."
@@ -166,7 +166,7 @@ module Services
 
         begin
           attempts += 1
-          @hub_client.fetch_spk_document(path: path)
+          @hub_client.get_body("/dane/doc/#{path}")
         rescue StandardError => e
           raise e if attempts >= MAX_FETCH_ATTEMPTS
 

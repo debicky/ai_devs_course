@@ -51,7 +51,7 @@ module Services
         end
 
         log('  Downloading sensors.zip...')
-        zip_data = @hub_client.fetch_sensors_zip
+        zip_data = @hub_client.get_body('/dane/sensors.zip')
         log("  Downloaded #{zip_data.bytesize} bytes")
 
         zip_path = File.join(Dir.tmpdir, "sensors_#{Process.pid}.zip")

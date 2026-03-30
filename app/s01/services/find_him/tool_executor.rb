@@ -146,7 +146,8 @@ module Services
         key = "#{name}|#{surname}|#{birth_year}"
         return @access_level_cache[key] if @access_level_cache.key?(key)
 
-        raw = @hub_client.fetch_access_level(name: name, surname: surname, birth_year: birth_year)
+        payload = { apikey: @hub_client.api_key, name: name, surname: surname, birthYear: Integer(birth_year) }
+        raw = JSON.parse(@hub_client.post('/api/accesslevel', payload).body)
         return { error: raw['error'].to_s } if raw.is_a?(Hash) && raw.key?('error')
 
         result = { accessLevel: extract_access_level(raw) }
@@ -237,14 +238,16 @@ module Services
       def cached_power_plants
         return @power_plants_cache if @power_plants_cache
 
-        @power_plants_cache = normalize_power_plants(@hub_client.fetch_find_him_locations)
+        raw = JSON.parse(@hub_client.fetch_data('findhim_locations.json'))
+        @power_plants_cache = normalize_power_plants(raw)
       end
 
       def cached_person_locations(name, surname)
         key = "#{name}|#{surname}"
         return @person_locations_cache[key] if @person_locations_cache.key?(key)
 
-        raw = @hub_client.fetch_person_locations(name: name, surname: surname)
+        payload = { apikey: @hub_client.api_key, name: name, surname: surname }
+        raw = JSON.parse(@hub_client.post('/api/location', payload).body)
         @person_locations_cache[key] = normalize_locations(raw)
       rescue Clients::HttpError => e
         err_msg = e.body.to_s.include?('not on the list') ? 'This person is not on the list of survivors. Use the exact name and surname from get_suspects (with Polish characters, e.g. Wacław not Waclaw).' : e.body.to_s

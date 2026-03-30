@@ -37,7 +37,7 @@ module Services
 
       def download_solved_image
         puts '  Downloading solved image...'
-        data = Net::HTTP.get(URI(@hub.solved_electricity_png_url))
+        data = Net::HTTP.get(URI("#{Clients::HubClient::BASE_URL}/i/solved_electricity.png"))
         path = File.join(Dir.tmpdir, "solved_electricity_#{Process.pid}.png")
         File.binwrite(path, data)
         puts "  Saved to #{path}"
@@ -47,12 +47,12 @@ module Services
       def run_attempt(solved_path)
         # Step 1: Reset board
         puts '  Resetting board...'
-        @hub.fetch_electricity_png(reset: true)
+        @hub.get_body("/data/#{@hub.api_key}/electricity.png?reset=1")
         puts '  Board reset.'
 
         # Step 2: Download current board
         puts '  Downloading current board...'
-        current_png = @hub.fetch_electricity_png
+        current_png = @hub.fetch_data('electricity.png')
 
         # Step 3: Compare pixels to find rotations
         puts '  Computing rotations via pixel comparison...'

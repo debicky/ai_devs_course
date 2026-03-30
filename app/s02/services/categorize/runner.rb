@@ -46,7 +46,7 @@ module Services
 
       def fetch_items
         puts '  Downloading CSV...'
-        csv_body = @hub.fetch_categorize_csv
+        csv_body = @hub.fetch_data('categorize.csv')
         puts "  CSV preview: #{csv_body.lines.first(3).map(&:strip).join(' | ')}"
 
         rows = CSV.parse(csv_body, headers: true)

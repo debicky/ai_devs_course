@@ -32,7 +32,7 @@ module Services
           next if File.exist?(path) && !File.zero?(path)
 
           log("downloading #{filename}...")
-          File.write(path, @hub_client.fetch_negotiations_csv(filename))
+          File.write(path, @hub_client.get_body("/dane/s03e04_csv/#{filename}"))
         end
       end
 

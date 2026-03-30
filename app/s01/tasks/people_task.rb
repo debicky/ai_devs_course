@@ -12,7 +12,7 @@ module Tasks
     end
 
     def call
-      csv_text   = @hub_client.fetch_people_csv
+      csv_text   = @hub_client.fetch_data('people.csv')
       people     = @csv_parser.call(csv_text)
       filtered   = @people_filter.call(people)
       tags_by_id = @job_classifier.call(filtered)

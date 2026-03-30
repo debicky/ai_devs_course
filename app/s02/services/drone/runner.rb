@@ -78,7 +78,7 @@ module Services
       private
 
       def analyze_map
-        image_url = @hub_client.drone_png_url
+        image_url = @hub_client.data_url('drone.png')
         log("Map URL: #{image_url}")
 
         raw = @vision_client.extract_text_from_image(image_url: image_url, prompt: MAP_ANALYSIS_PROMPT)

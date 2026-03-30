@@ -20,7 +20,8 @@ module Services
         raise ArgumentError, 'action is required' if action.empty?
 
         extra = (arguments['params'] || {}).transform_keys(&:to_sym)
-        @hub_client.call_zmail(action: action, **extra)
+        payload = { apikey: @hub_client.api_key, action: action }.merge(extra)
+        JSON.parse(@hub_client.post('/api/zmail', payload).body)
       rescue ArgumentError, KeyError => e
         { error: e.message }
       rescue StandardError => e
