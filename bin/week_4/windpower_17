@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../../config/environment'
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+required_env!('AG3NTS_API_KEY')
+
+http_client = Clients::HttpClient.new(open_timeout: 10, read_timeout: 30)
+hub_client  = Clients::HubClient.new(http_client: http_client)
+runner      = Services::Windpower::Runner.new(hub_client: hub_client)
+task        = Tasks::WindpowerTask.new(runner: runner)
+
+puts '→ Running windpower task...'
+result = task.call
+
+puts
+puts "Verification: #{result[:verification].inspect}"
+puts "Flag:         #{result[:flag]}"
