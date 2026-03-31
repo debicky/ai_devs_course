@@ -1,202 +1,180 @@
 ---
-title: S04E01 — Wdrożenia rozwiązań AI
+title: S04E02 — Aktywna współpraca z AI
 space_id: 2476415
 status: scheduled
-published_at: '2026-03-30T04:00:00Z'
+published_at: '2026-03-31T04:00:00Z'
 is_comments_enabled: true
 is_liking_enabled: true
 skip_notifications: false
-cover_image: 'https://cloud.overment.com/0401-1774694233.png'
-circle_post_id: c''
+cover_image: 'https://cloud.overment.com/0402-1774694238.png'
+circle_post_id: 31103394
 ---
-## Film do lekcji
+Mówi się, że prosty interfejs czatu był jedną z przyczyn sukcesu ChatGPT. Choć trudno jednoznacznie stwierdzić czy rzeczywiście tak było, to właśnie taka forma interakcji do dziś pozostaje domyślną przy pracy z agentami AI. Jednak coraz rzadziej jest to wyłącznie wymiana wiadomości, ale także zaawansowane funkcjonalności związane z zarządzaniem kontekstem, integracjami, autonomią czy różnymi formami interakcji.
 
-![https://vimeo.com/1177421190](https://vimeo.com/1177421190)
+Nawet w przypadku systemów działających w tle, z ograniczonym udziałem człowieka, obecna jest jakaś forma wymiany informacji, podejmowania decyzji lub raportowania. Wyraźnie zauważalny jest trend, w którym na jedną wiadomość użytkownika nie przypada już jedna odpowiedź asystenta AI, ani nawet dziesiątki kroków wykonywanych przez pojedynczego agenta. Dziś jedno zdarzenie może zapoczątkować aktywność całego zespołu agentów, którzy wspólnie dążą do osiągnięcia postawionego celu.
 
-AI w swojej obecnej formie wciąż jest nowe i trudno jednoznacznie mówić o **najlepszych praktykach** wdrożeń. Tym bardziej, że o konsekwencjach długoterminowych będziemy się dopiero przekonywać. Historie firm takich jak [Klarna](https://fortune.com/2025/05/09/klarna-ai-humans-return-on-investment/), czy ostatnia [Block](https://x.com/jack/status/2027129697092731343) sugerują, że wpływ na rynek pracy jest realny, ale też nieoczywisty. Rozwijające się modele, narzędzia i techniki pracy sprawiają, że to, co było niemożliwe jeszcze kilka miesięcy temu, dziś może być w zasięgu. Jednak w praktyce, dodatkowo utrudnia to określenie co w danej chwili ma znaczenie dla nas.
+Będziemy więc chcieli zarządzać taką współpracą, co nierzadko będzie wymagało podjęcia decyzji o tym, kiedy sięgnąć po gotowe rozwiązania, a kiedy stworzyć własne. Aby móc odpowiedzieć na to pytanie, przyjrzymy się dostępnym opcjom, uwzględniając przy tym także budowanie własnych rozwiązań.
 
-Powiedzieliśmy już, że wdrożenia rozwiązań AI w dużym stopniu przypominają wdrożenia systemów niewykorzystujących AI. Do pewnego stopnia możemy więc **łączyć to**, co już wiemy, z tym, czego aktualnie się uczymy.
+## Interfejs czatu
 
-Aby odnaleźć się w nowym obszarze, warto jest **dopasować swoje otoczenie** tak, aby jak najlepiej sprzyjało nam w eksploracji, doświadczaniu oraz wyrabianiu intuicji o tym, co ma szansę zadziałać, a co nie. Dobrym pomysłem jest więc zbudowanie rozwiązań z których **sami będziemy korzystać**, ponieważ w ten sposób doświadczymy problemów i zrozumiemy możliwości, które przygotują nas do tworzenia rozwiązań na większą skalę.
+Większość z nas pracuje już z agentami do kodowania takimi jak **Cursor / Claude Code / Open Code / Codex / Pi** bądź IDE rozszerzone o funkcjonalności AI, np. narzędzia JetBrains. Poza kontekstem kodu zwykle wybieramy między ChatGPT, Claude, Perplexity czy Grok, bądź dedykowane aplikacje takie jak Jan czy Cherry Studio albo własne rozwiązania. W niektórych przypadkach sprawdzić się mogą także agenci zintegrowani z komunikatorami takimi jak Slack, Telegram czy Discord.
 
-W tej lekcji przyjrzymy się projektowi "**Cyfrowego Ogrodu**", czyli koncepcji osobistej bazy wiedzy, która zwykle ma charakter publiczny. Niekiedy występuje także jako **Digital/Second Brain**. W przeciwieństwie do zwykłego bloga, treści nie ograniczają się wyłącznie do artykułów i mogą przybierać dowolną formę. Taki projekt może potencjalnie stać się częścią codzienności każdego z nas, a elementy tej koncepcji funkcjonują także w kontekście firmowych baz wiedzy. Istotną zmienną będzie tu jednak połączenie z AI, bądź wprost sprawienie, aby nasze notatki stały się jednocześnie **pamięcią** agenta, co po części nawiązuje do lekcji **S02E03**.
+Obecnie wybór pomiędzy wymienionymi rozwiązaniami sprowadza się do **dostępności modeli** oraz **ceny** i niekiedy także samych funkcjonalności. Jednocześnie granice pomiędzy tymi narzędziami częściowo się zacierają, a wartość końcowa jaką otrzymujemy wydaje się być zbliżona. Interesującym przykładem jest **Agent Client Protocol (ACP)** wykorzystywany między innymi przez JetBrains czy Zed dzięki któremu łączą się one z agentami takimi jak Codex czy Cursor.
 
-## Oczekiwania vs rzeczywistość wdrożeń AI
+Świadomość tego, co dzieje się na rynku jest istotna, ponieważ pomoże nam to w podejmowaniu decyzji przy tworzeniu rozwiązań zarówno dla nas, jak i naszych klientów. Bo przykładowo, gdy tworzymy narzędzia integrujące się np. z Linear na potrzeby wyłącznie zespołu programistycznego, zwykle najlepszym rozwiązaniem będzie stworzenie integracji CLI. Agenci do kodowania bez problemu poradzą sobie z jej obsługą, a użytkownicy z instalacją oraz aktualizacjami. Jeśli jednak z narzędzia będą korzystać także osoby nietechniczne, to wówczas lepszym wyborem będzie opracowanie MCP bo pozwoli to na podłączenie także do interfejsów webowych (np. Claude)
 
-Słysząc określenie **Second Brain**, zwłaszcza w połączeniu ze **Sztuczną Inteligencją**, natychmiast nasuwają się skojarzenia rodem z komiksów Marvela bądź filmów sci-fi. Jeśli dodamy do tego logikę agentów posługujących się narzędziami w naszym imieniu, to nagle wszystko wydaje się możliwe. Oczywiście wiemy, że tak nie jest. Ale wiemy także, że wiedza, którą posiadamy, pozwoli nam stworzyć system i narzędzia, które nie muszą od razu być odpowiednikiem [J.A.R.V.I.S.](https://en.wikipedia.org/wiki/J.A.R.V.I.S.), ale wciąż mogą być bardzo użyteczne.
+Zatem w sytuacji, gdy możemy stworzyć rozszerzenia lub integracje, które połączą się z narzędziami, z których już teraz korzystają nasi klienci, będzie to raczej lepszy pomysł niż budowanie wszystkiego od podstaw. Jednocześnie takie podejście relatywnie szybko zaczyna być bardzo ograniczające, ale musimy też skutecznie określić granicę, kiedy tak się stanie. Spójrzmy więc na poniższe zestawienie dostępnych na rynku narzędzi.
 
-Załóżmy więc, że naszym zadaniem jest wdrożenie systemu Second Brain / Digital Garden. Definicje tych nazw są bardzo płynne i mogą być różnie interpretowane, więc załóżmy, że chodzi nam o:
+![Porównanie interfejsów AI](https://cloud.overment.com/2026-03-04/ai_devs_4_agents_map-65da49cd-5.png)
 
-- system wiedzy w formie dokumentów tekstowych (Markdown)
-- statyczną stronę www generowaną na podstawie treści tych plików
-- agenta, dla którego ten system wiedzy będzie pełnił rolę pamięci oraz przestrzeni roboczej
-- agent będzie mógł swobodnie manipulować dokumentami, a nawet wysyłać dotyczące ich zmiany do repozytorium
-- agent przynajmniej częściowo musi poruszać się w sandboxie, szczególnie w związku z obsługą terminala
-- zakładamy też, że wszystkie przechowywane dane mają charakter **publiczny**
+Można uznać, że każde z narzędzi posiada zbliżone możliwości bazowe. Różnice są jednak bardzo wyraźne w kontekście **personalizacji i rozszerzeń**. W tym przypadku najwięcej do zaoferowania mają narzędzia CLI, ale wiemy też, że nie są one przyjaznym środowiskiem dla wszystkich, więc nie możemy ignorować pozostałych opcji.
 
-Do zbudowania tego projektu wykorzystamy **API OpenAI**, **Sandbox Daytona** oraz **Github Actions i Github Pages**. Dodatkowo fakt, że mamy do dyspozycji sandbox sprawi, że agent będzie mieć możliwość wykonywania kodu JavaScript/Node.
+Przed decyzją o tworzeniu całkowicie dedykowanych rozwiązań należy wziąć pod uwagę także aspekt ekonomiczny. Narzędzia takie jak Claude Code, Codex czy ChatGPT oferują plany subskrypcyjne, które ze względu na działanie na dużej skali, są nieporównywalnie bardziej atrakcyjne cenowo niż korzystanie z API ([przykład estymacji](https://she-llac.com/claude-limits)). Co więcej część klientów posiada już umowy oraz plany dla pracowników, co również ułatwia wdrożenie.
 
-![Architektura cyfrowego ogrodu AI](https://cloud.overment.com/2026-03-02/ai_devs_4_garden-8919e468-9.png)
+Zatem wybór interfejsu wcale nie jest oczywisty, a jednocześnie w bardzo dużym stopniu będzie determinował pozostałe obszary projektu. Sama decyzja nie jest ograniczona jedynie do gotowych i dedykowanych narzędzi, bo możliwych scenariuszy jest sporo.
 
-Patrząc na powyższe możliwości można zadać sobie pytanie **dlaczego budować agenta, przecież wystarczy tu "Claude Code"?** i jest to prawda. Claude Code posiada wszystkie te możliwości, może poza wygenerowaniem strony www na podstawie markdown. Tutaj chodzi jednak o to, abyśmy zrozumieli **co się dzieje "pod spodem"**, ponieważ zastosowanie Claude Code w skali produkcyjnej raczej mijałoby się z celem. Ewentualnie moglibyśmy rozważyć wykorzystanie logiki [Pi](https://pi.dev/) oraz jej obudowanie według naszych potrzeb. Nadal dawałoby nam to spore zrozumienie logiki, a jednocześnie otwierało drogę na produkcję. Tutaj decyzja zależy już od nas.
+- **Narzędzia CLI:** powiedzieliśmy, że narzędzia CLI sprawdzą się w indywidualnym kontekście użytkownika pracującego na swojej maszynie. Jednocześnie rolę tej maszyny może pełnić sandbox i choć komplikuje to architekturę, tak otwiera przestrzeń do stosowania narzędzi CLI w różnych scenariuszach.
+- **Serwery MCP:** niemal każdy ze wspomnianych interfejsów posiada wsparcie MCP. Fakt, że narzędzia MCP nie muszą być pojedynczymi akcjami sprawia, że mogą obejmować także komunikację z systemem wieloagentowym. Połączenie tego z interfejsem MCP Apps pozwoli także na monitorowanie postępów czy dostarczanie dodatkowych informacji.
+- **Komunikatory:** narzędzia takie jak Slack nie zostały stworzone z myślą o AI, ale ich API obejmuje koncepcje botów, a nawet interaktywnych wiadomości wyświetlających proste elementy interfejsu. Profile botów, dedykowane kanały czy komendy pozwalają na relatywnie duży poziom dopasowania. Natomiast przede wszystkim użytkownicy pozostają w znanym im kontekście komunikatora.
+- **Dedykowane rozwiązanie:** tutaj mówimy już o budowaniu narzędzi od podstaw, co wbrew pozorom dziś nie jest już tak skomplikowane jak kiedyś. Tym bardziej, że nie musimy od razu mówić o klonowaniu wszystkich funkcjonalności ChatGPT czy Slack'a, ale nawet relatywnie prostych interfejsach skupiających się na konkretnych interakcjach z agentem.
 
-Minimalna implementacja agenta przedstawionego na ostatnim schemacie znajduje się w folderze **04\_01\_garden**. Po jego uruchomieniu **npm start** możemy poprosić o zarządzanie notatkami, a poleceniem **npm run preview** baza wiedzy w plikach markdown zostanie zamieniona na stronę www. Przykład może też być wgrany do zdalnego repozytorium Github, a po aktywacji Github Pages, strona zostanie automatycznie opublikowana na domyślnej domenie naszego konta.
+Przekładając to na wizualizację, widzimy, że nie ma jednego, uniwersalnego rozwiązania. Tym bardziej że w praktyce nie mówimy tu o „opcjach”, spośród których musimy coś wybrać, lecz o ich połączeniu w sposób, który będzie działał dla nas najlepiej.
 
-![Wizualizacja strony www](https://cloud.overment.com/2026-03-03/ai_devs_4_layout-00852aa4-6.png)
+![Wybór interfejsu według scenariuszy](https://cloud.overment.com/2026-03-05/ai_devs_4_fit-e01dadf3-f.png)
 
-Jesteśmy więc w miejscu w którym **rozmowa z agentem** może wiązać się z **modyfikacją plików** których treść stanie się naszą stroną. Co więcej, gdy przypomnimy sobie przykłady z lekcji **S02E03**, to jasne staje się także to, że agent będzie mógł działać według **procesów** opisanych w plikach. A w tym przypadku do dyspozycji mamy także Skille przypominające koncepcją [umiejętności Claude Code](https://code.claude.com/docs/en/skills).
+Jeśli spojrzymy na te opcje z myślą o własnych potrzebach (np. prywatnych bądź wewnątrzfirmowych), to:
 
-Bez wątpienia mówimy tu o ogromnej elastyczności i wynikających z niej możliwości. Tylko co to dokładnie oznacza?
+- Kontekst CLI może być domyślnym wyborem. Tym bardziej, że istnieje możliwość uruchamiana agentów do kodowania na zdalnych serwerach. Tutaj największą wartością będzie optymalizacja swojej pracy oraz obserwowanie skuteczności modeli w różnych sytuacjach.
+- Budowanie wszystkich mechanik od podstaw lub częściowo w oparciu o istniejące narzędzia da nam także wartość edukacyjną oraz doświadczenia, które będziemy mogli wykorzystać w pracy.
+- Tworzenie własnych interfejsów również daje ogromną wartość, nawet w zakresie świadomości ich przewag czy wysiłku wymaganego przy ich budowie, który nadal jest znaczący pomimo dużego wsparcia ze strony AI i generowania kodu.
 
-- Agent może poruszać się po **całej bazie** wiedzy z pomocą poleceń w terminalu.
-- Agent może **tworzyć i edytować** dowolny dokument markdown
-- Agent może **podążać za instrukcjami** opisanymi w plikach
-- Agent może **uruchamiać generowane skrypty**
-- Agent może **posługiwać się narzędziami** wykorzystując [Code Mode](https://www.anthropic.com/engineering/code-execution-with-mcp)
-- Agent może **samodzielnie publikować** zmiany
+Analogicznie będziemy budować scenariusze z myślą o klientach czy potrzebach wewnątrzfirmowych. Aby jednak lepiej to zrozumieć, przyjrzyjmy się teraz dokładniej różnicy pomiędzy **Serwerem MCP w Claude**, a **dedykowanym interfejsem**.
 
-Możemy więc:
+Załóżmy, że posiadamy system agentowy, który pozwala monitorować skuteczność kampanii marketingowych realizowanych na potrzeby naszego produktu. Funkcjonalności obejmują **przeglądanie statystyk**, **monitorowanie** sytuacji wymagających uwagi oraz **generowanie raportów**. Każda z tych akcji obejmuje zaangażowanie AI w kontekście formy prezentacji danych oraz wskazówek i sugestii dotyczących potencjalnych działań.
 
-- podłączyć [Firecrawl](https://www.firecrawl.dev/), aby monitorować zasoby w Internecie (np. nowości branżowe)
-- podłączyć [Gemini](https://ai.google.dev/gemini-api/docs/interactions), aby analizować filmy, np. z wybranych kanałów YouTube
-- podłączyć [Replicate](https://replicate.com/), aby generować dopasowane do stylu grafiki
-- podłączyć [Resend](https://resend.com/), aby zarządzać kampaniami mailowymi
-- ...i wiele, wiele innych
+![Agent wspierający monitorowanie działań marketingowych](https://cloud.overment.com/2026-03-05/ai_devs_4_marketing_agent-0c151848-b.png)
 
-W teorii mówimy tutaj o potencjale automatyzacji dowolnego procesu biznesowego. Chwilę później orientujemy się, że:
+W tej sytuacji możemy skorzystać z MCP Tools i MCP Apps, aby bez większych problemów zintegrować się np. z Claude. Wiąże się to jednak z konkretnymi ograniczeniami:
 
-- agent nie może przetwarzać zbyt długich dokumentów
-- agent nie widzi obrazów obecnych w tekście
-- agent nie przetwarza dokumentów binarnych (np. PDF)
-- agent nie może dostać się na niektóre strony www
-- agent nie może skorzystać z funkcji serwisów niedostępnych w API
-- agent zbyt długo generuje odpowiedzi
-- agent generuje zbyt duże koszty
+- Claude.ai nie wspiera **samplingu** w MCP. Oznacza to, że poza opłatą subskrypcji, ponosimy także koszty API związane z działaniem agenta.
+- Personalizacja instrukcji w Claude jest możliwa, lecz na różne sposoby ograniczona. Nasz system raczej będzie musiał opierać się wyłącznie o opisy narzędzi i zwracane przez nich treści.
+- Sam interfejs wywołań narzędzi MCP jest poza naszą kontrolą. Zakładając więc, że nasz system podczas gromadzenia statystyk będzie potrzebował dodatkowych informacji lub potwierdzeń, technicznie mamy bardzo ograniczone możliwości skontaktowania się z użytkownikiem.
+- W przypadku rozbudowanych reguł dotyczących uprawnień również pojawiają się komplikacje. Przykładem może być potrzeba wczytania danych dla z różnych kampanii czy przeglądu statystyk dla wszystkich klientów.
+- Jeśli system będzie uwzględniał podejmowanie działań w tle, to mamy bardzo małe możliwości poinformowania użytkownika o ich statusie, nie mówiąc już o ewentualnych interwencjach.
 
-I to właśnie można potraktować jako zderzenie **oczekiwań z rzeczywistością**. No ale wiemy już, że każdy z wymienionych problemów da się rozwiązać. Oznacza to, że **nie możemy zrobić wszystkiego, ale możemy zrobić cokolwiek**. Podobnie wygląda to przy tworzeniu rozwiązań produkcyjnych, gdzie również musimy wybrać obszary na których skupi się nasza uwaga.
+Przynajmniej część z tych ograniczeń adresuje MCP Apps, ale i tak nie da się tego porównać do dedykowanego interfejsu i całościowej kontroli doświadczeń użytkownika.
 
-Przykład **04\_01\_garden** jest więc w tym przypadku **punktem startowym** i na tym etapie jego użyteczność jest raczej ograniczona ze względu na brak interfejsu, mechanik kompresji kontekstu czy minimalną liczbę narzędzi. Jednocześnie projektując wdrożenia AI dobrze jest określić sobie podobny punkt, który będzie pełnił rolę **fundamentu** na którym będziemy budować dalej. Tymczasem warto uruchomić go i poprosić agenta o dopisanie **3-4 naszych ulubionych książek** podając ich nazwy i sprawdzić jak ich treść przekłada się na wygląd strony (npm run preview). Wówczas możemy zadać sobie pytanie: **czy taki agent może być dla nas użyteczny, a jeśli tak, to jak?**
+Myślę, że powyższy przykład, pomimo widocznych ograniczeń pokazuje, że podłączanie się do istniejących narzędzi i ekosystemów może mieć mnóstwo sensu. Niezbędna jest tu jednak świadomość możliwości oferowanych przez narzędzia takie jak Claude, ChatGPT czy nawet komunikatorów takich jak Telegram (który niedawno wprowadził możliwość strumieniowania wiadomości). Tym bardziej, że funkcjonalności oferowane przez stojące za nimi firmy nieustannie się zmieniają.
 
-## Synchroniczną i asynchroniczna współpraca z AI
+Na tym etapie dobrze jest też wybrać bądź stworzyć przynajmniej jeden serwer MCP i przejść przez proces podłączenia go np. z Claude Code bądź Claude.ai. Takie doświadczenie pozwoli lepiej zrozumieć to, o czym właśnie sobie powiedzieliśmy.
 
-Na temat różnic pomiędzy bezpośrednią współpracą z agentami, a ich funkcjonowaniem w tle, mówiliśmy już całkiem sporo. Natomiast w kontekście wdrożeń AI są to niemal dwie różne kategorie problemów. Wystarczy spojrzeć ponownie na przykład **04\_01\_garden** z tych dwóch perspektyw.
+Tymczasem, gdy spojrzymy na **[listę popularnych klientów MCP](https://modelcontextprotocol.io/clients)** zobaczymy, że zaledwie pojedyncze wpisy deklarują pełne wsparcie tego protokołu. Nawet w ostatnim przykładzie mieliśmy okazję zobaczyć jak dużym ograniczeniem może być brak **samplingu**, czyli możliwości odwrotnej komunikacji Client - Server. Zauważyliśmy również, że potencjalnym problemem jest także ustawienie instrukcji systemowej. To zaledwie pojedyncze przykłady funkcjonalności, których może nam brakować, ponieważ w praktyce istotne stają się:
 
-**Praca synchroniczna:**
+- Dostęp do historii wiadomości przez różnych użytkowników (np. kanały na Slacku)
+- Tworzenie profili asystentów dla wybranych obszarów (np. projekty w Claude)
+- Automatyczna konfiguracja ustawień (np. współdzielenie umiejętności w Claude Code)
+- Elastyczny interfejs aplikacji (np. wyświetlanie Artifacts w ChatGPT)
+- Opcja korzystania z różnych modeli (np. Raycast)
+- Możliwość przetwarzania różnych formatów treści (np. źródła w NotebookLM)
+- Wsparcie interakcji audio & wideo (np. tryb live w Google AI Studio)
+- Dostęp do funkcji systemowych (np. w przypadku aplikacji desktopowych)
+- Możliwość zachowania pełnej prywatności (np. LM Studio)
 
-- **Interfejs:** rola edytora, czatu oraz różnych sposobów komunikacji z agentem stanowią tu centralny element systemu i bezpośrednio wpływają na jego skuteczność
-- **Personalizacja:** dopasowanie systemu do potrzeb użytkownika może obejmować budowanie kontekstu, modyfikowanie struktur, tworzenie własnych workflow czy umiejętności. Istotne będą także własne rozszerzenia i ich konfiguracja
-- **Synchronizacja:** współpraca między użytkownikiem oraz agentami wymaga tego, aby każdy miał swobodny dostęp do aktualnych danych
-- **Feedback:** system może posiadać znacznie większe uprawnienia, ponieważ krytyczne akcje i tak będą pod nadzorem człowieka
+Powyższa lista sugeruje, że pomimo podobieństw pomiędzy dostępnymi na rynku aplikacjami, istnieje także mnóstwo szczegółów które będą decydować o wyborze, bądź konieczności stworzenia własnych narzędzi. Patrząc jednak na obecną sytuację na rynku, możemy powiedzieć, że:
 
-**Praca asynchroniczna:**
+- **Claude Code / Open Code** sprawdzą się najlepiej w osobistym kontekście
+- **Pi** będzie alternatywą dla powyższych, ale bardziej zaawansowaną
+- **Claude.ai** to bardzo dobra opcja dla osób o profilu nietechnicznym
+- **Slack** (bądź inny komunikator) sprawdzi się w kontekście zespołowym
 
-- **Integracja:** system musi działać według zdefiniowanych procesów bądź przestrzeni po której mogą poruszać się agenci. Wymagania, połączenie z usługami oraz ustalenie harmonogramu muszą być ustalone z góry i wpisać się w codzienność oraz styl pracy użytkownika.
-- **Komunikacja:** interfejs użytkownika może zostać całkowicie pominięty, bądź przynajmniej mocno ograniczony. Działanie systemu może sprowadzać się wyłącznie do funkcjonowania w tle, bądź wyłącznie raportowania wyników z minimalnym zaangażowaniem ze strony człowieka.
-- **Samodzielność:** procesy muszą być precyzyjnie zdefiniowane i na tyle skuteczne, aby nie wymagały interwencji po stronie człowieka. Jednocześnie system powinien uwzględniać ewentualne **modyfikacje** oraz **dopasowanie** do zmieniającego się otoczenia (np. integracji z nowymi systemami)
-- **Autonomia:** choć samodzielna praca agentów występuje także w przypadku bezpośredniej współpracy z człowiekiem
+Oczywiście powyższa rekomendacja stanowi duże uogólnienie, ale dość dobrze opisuje rzeczywistość i rozwiązania na które decydują się firmy. Jednocześnie wyraźnie widać również to, że wzrost poziomu wykorzystania AI naturalnie odsuwa nas od generycznych interfejsów w stronę dedykowanych rozwiązań.
 
-![Porównanie synchronicznej i asynchronicznej współpracy z agentami](https://cloud.overment.com/2026-03-03/ai_devs_4_async:async-351d8e7d-9.png)
+## Personalizacja interakcji z modelami językowymi
 
-Powyższa wizualizacja wyraźnie obrazuje różnicę pomiędzy obszarami na których będziemy skupiać się w zależności od charakteru systemu. Widać na niej także rozkład zaangażowania pomiędzy użytkownikiem, a AI. Jednocześnie są to jedynie ogólne kategorie, a nie konkretne funkcjonalności czy procesy za które agent będzie odpowiedzialny.
+Do tej pory omawialiśmy przede wszystkim **narzędzia** oraz możliwość połączenia agentów do **dokumentów**. Pojawiał się także wątek kształtowania instrukcji agentów, ale raczej w logice back-endu. Jednak potrzeba personalizacji może być potrzebna także po stronie interfejsu użytkownika. Przekłada się to na:
 
-W tym miejscu musimy więc zdecydować, w którą stronę chcemy pójść, lub ewentualnie podjąć decyzję o tym, jaki rodzaj **hybrydowego** rozwiązania chcemy zbudować. Ponieważ nic nie stoi na przeszkodzie, aby system działał w tle, a współpraca z użytkownikiem nadal była możliwa. W naszym przypadku będzie to konkretnie:
+- **Profile**: użytkownik może pracować w więcej niż jednym kontekście, dlatego podział na profile wyspecjalizowanych agentów ma duży sens. Każdy z nich może posiadać własne ustawienia i zasoby wiedzy, a sama aplikacja może obejmować ich autonomiczną współpracę. Mówimy więc tu o koncepcji **subagentów** znanych na przykład z Claude Code.
+- **Umiejętności**: predefiniowane instrukcje wstrzykiwane do konwersacji albo intencjonalnie w wyniku akcji użytkownika, albo poprzez decyzję modelu, to bardzo wygodny sposób na personalizację zachowań modelu. Jest to jedna z najważniejszych funkcjonalności każdego interfejsu AI.
+- **Narzędzia**: wsparcie MCP czy natywnych integracji musi uwzględniać łatwą kontrolę nad tym, jakie narzędzia są w danej chwili uruchomione, a także ich możliwości personalizacji (omawialiśmy to w kontekście "Augmented Function Calling")
+- **Workflow**: obecnie tylko pojedyncze interfejsy posiadają funkcjonalności umożliwiające wykonywanie serii powtarzalnych akcji. W tym kontekście pomocne są także mechaniki takie jak hooki czy zaplanowane zadania.
 
-- **Edytor:** możliwość samodzielnego zarządzania notatkami w edytorze markdown. Użytkownik będzie więc musiał posiadać dostęp do najnowszej wersji dokumentów.
-- **Interfejs:** użytkownik będzie miał możliwość przekazywania prostych poleceń (poza interfejsem czatu), związanych np. z zapisywaniem informacji bądź docieraniem do istniejących treści.
-- **Workflow:** procesy realizowane przez agentów będą opisane w plikach, a rezultaty ich pracy zapisywane w ustalonych strukturach. To przestrzeń na research, cykliczne notatki, obserwacje, gromadzenie informacji czy historii.
-- **Agenci:** agenci powinni mieć dostęp do dedykowanych narzędzi, ale nie będzie dochodziło między nimi do bezpośredniej współpracy, lecz jedynie wymiany informacji. Np. agent zarządzający pocztą będzie mógł skorzystać z efektów pracy agenta do przeszukiwania sieci, ale nie będzie miał możliwości zlecenia mu nowych zadań.
+Mówimy tu o relatywnie prostych i użytecznych mechanikach, których wciąż trudno szukać w popularnych interfejsach, szczególnie gdy zależy nam na ich rozbudowanych wersjach, a nie na podstawowych ustawieniach.
 
-Mówimy więc tutaj o minimalnej konfiguracji, która pozwoli nam na wygodne zarządzanie rozwojem naszego "cyfrowego ogrodu", korzystając przy tym ze wsparcia AI, ale w raczej ograniczonym zakresie. Aby to wszystko miało sens, istotną rolę będzie odgrywać określenie **zasad** oraz **struktury** informacji w ramach których będziemy się poruszać. Jednocześnie obecność agenta nie powinna nam **przeszkadzać**.
+![Główne elementy interfejsu agentów](https://cloud.overment.com/2026-03-05/ai_devs_4_components-1091651e-c.png)
 
-Główne koncepcje naszego projektu widoczne są poniżej:
+Sama implementacja takich funkcjonalności nie decyduje o ich użyteczności, ponieważ:
 
-![Architektura cyfrowego ogrodu](https://cloud.overment.com/2026-03-03/ai_devs_4_garden_structure-94fe8562-e.png)
+- Konfiguracja subagentów powinna obejmować możliwość ich **generowania** zgodnie z dobrymi praktykami, a ich ustawienia powinny uwzględniać na przykład wybór modelu oraz aktywnych trybów aplikacji (np. przeszukiwanie sieci). Przykładem aplikacji, która robi to w ten sposób jest Claude Code. Następnie przełączanie się pomiędzy nimi powinno odbywać się przez wygodne menu, skróty klawiszowe, ich wywołanie przez znak '@' (mention) czy automatyczne wywołanie przez AI.
+- Analogicznie też łatwe powinno być generowanie i wywoływanie umiejętności. Tutaj ze względu na ich potencjalną liczbę, dobrze też zadbać o wyszukiwanie czy grupowanie (np. poprzez przypisanie do agentów)
+- Samo wywoływanie narzędzi to nie wszystko, ponieważ liczy się także sposób w jaki prezentujemy dane do uruchomienia akcji, potwierdzenia, postęp, informacje o błędach oraz wyniki. Istotne są także możliwość wstrzymania / anulowania akcji.
+- W przypadku akcji odbywających się w tle, albo w wyniku automatyzacji albo po prostu prowadzenia więcej niż jednego wątku jednocześnie, użytkownik powinien być w jasny sposób informowany o bieżącym statusie czy potrzebie interwencji. Złe praktyki można zaobserwować na co dzień niemal we wszystkich dostępnych na rynku narzędziach. Nacisk na doświadczenia użytkownika i świetny interfejs nadal ma tutaj znaczenie i nie chodzi wyłącznie o wygląd ale także jakość implementacji.
 
-Nie jest to zatem typowy system wieloagentowy, choć faktycznie występuje w nim wielu agentów. Nie mówimy tu też o interfejsie czatu, ale mamy możliwość wymiany wiadomości z głównym agentem. Patrząc na to z szerszej perspektywy można powiedzieć, ze mamy do czynienia z **częściowo-autonomicznym blogiem**, ponieważ:
+Patrząc na liczbę funkcjonalności, ilość detali oraz mechanik, które bierzemy tutaj pod uwagę, można powiedzieć, że jest to niemal zupełnie nowa klasa interfejsów i wyzwań z perspektywy ich projektowania.
 
-- użytkownik tworzy treści samodzielnie, ale jest **wspierany** przez AI
-- agenci realizują procesy, ale mogą **współdzielić** zasoby w postaci wiedzy
-- procesy nie opierają się wyłącznie o pliki tekstowe, ale **integracje** z otoczeniem
-- działanie systemu ma charakter **autonomiczny**, ale tylko w wybranych obszarach
-- zadania agentów są z góry zdefiniowane, ale mogą być przez nich **optymalizowane**
-- system opiera się o istniejące moduły, ale z łatwością może być **rozbudowany** ze względu na swoją elastyczność
+![Jakość interfejsu i szczegóły wpływające na doświadczenia użytkownika](https://cloud.overment.com/2026-03-05/ai_devs_4_uiux-00adee0c-8.png)
 
-Patrząc na takie scenariusze, bliżej nam tutaj do współpracy **asynchronicznej**, w której kontakt z agentami będzie bardzo ograniczony.
+Powyższa wizualizacja stanowi także dobry dowód na to, że budowanie własnych interfejsów zdecydowanie nie polega wyłącznie na klonowaniu istniejących funkcjonalności i jest to przestrzeń na nowe pomysły.
 
-W ten sposób przeszliśmy od **ogólnych fundamentów**, których możliwości są "nieograniczone" do wyraźnie **wyspecjalizowanego systemu**, którego rolą jest **wspieranie** użytkownika w jego rozwoju, zdobywaniu nowych umiejętności, gromadzeniu zasobów oraz dzieleniu się swoimi doświadczeniami. Takie ukierunkowanie wynika bezpośrednio z połączenia **potrzeb użytkownika** oraz **możliwości**, jakie daje nam generatywna sztuczna inteligencja. Jak widać nie mówimy tu o **zastąpieniu** człowieka czy **generowaniu treści na bloga**, lecz wyraźnej współpracy oraz wzmacnianiu możliwości po obu stronach.
+## Jednorazowe zadania i pojedyncze akcje
 
-Bardzo podobnie wygląda to w przypadku projektowania rozwiązań dla klientów czy na potrzeby wewnątrzfirmowe. Tam również możemy zacząć od ogólnych założeń, a potem stopniowo kształtować rozwiązanie tak, aby odpowiadało na potrzeby biznesowe bez wchodzenia w skrajności takie jak np. "pełna automatyzacja" procesów. Oczywiście nie wykluczamy tutaj, że scenariusze w których sztuczna inteligencja przejmuje wszystkie aktywności nie są możliwe, ale należy podchodzić do tego z rozwagą. Tym bardziej, że do tej pory mówiliśmy głównie o możliwościach, pomijając większość barier i istotnych ograniczeń.
+Rozmowy na temat agentów bardzo szybko przechodzą w obszary skomplikowanych systemów. Nawet teraz znacznie łatwiej jest mówić o zaawansowanych interfejsach, integracjach i autonomii, niż o prostych rozwiązaniach, które możemy wdrożyć w ciągu zaledwie kilku minut. Problem w tym, że zauważenie przestrzeni na wdrożenie pojedynczych akcji i szybkich zadań, nie jest takie łatwe.
 
-## Mapowanie procesów w kontekście możliwości rozwiązań AI
+Dobrym punktem startowym procesu myślowego na temat takich mikro-narzędzi jest spojrzenie na nie przez pryzmat akcji przypisywanych do skrótów klawiszowych, gestów (np. na ekranie dotykowym) czy prostych wyzwalaczach znanych z aplikacji Keyboard Maestro czy BetterTouchTool. Kilka przykładów:
 
-Połączenie istniejących procesów oraz potrzeb biznesowych z możliwościami AI, wymaga zrozumienia każdego z tych elementów. Bo poza decyzją o tym, **"co chcemy zrobić?"** musimy podjąć także decyzję o tym **"czego nie chcemy robić?"** oraz **"jak chcemy to zrobić?"**. Samo zastosowanie AI nie odpowie nam automatycznie na takie pytania, tym bardziej że w grę wchodzi także decyzja, aby **nie stosować AI**, na przykład tam, gdzie korzyści będą mniejsze albo nawet w ogóle ich nie odczujemy.
+- **Czytanie zaznaczenia:** modele do generowania audio są już bardzo szybkie i skuteczne, nawet jeśli działają lokalnie (zakładając, że mamy odpowiedni sprzęt). Przeczytanie zaznaczonego tekstu bardzo pomaga w jego zrozumieniu, szczególnie jeśli mamy łatwą możliwość kontroli tempa odtwarzania.
+- **Wyjaśnienie zaznaczenia:** analogicznie do wcześniejszej akcji, zaznaczony tekst (np. słowo kluczowe bądź definicja) może zostać zwięźle wyjaśniona korzystając z wiedzy modelu bądź wyników wyszukiwania
+- **Transformacja zaznaczenia:** korekty, tłumaczenia, parafrazy, zwiększenie czytelności, zmiana na listę zadań, ekstrakcja informacji z danej kategorii - takie transformacje tekstu przypisane do skrótów klawiszowych są potencjalnie najbardziej użytecznym zastosowaniem AI w codziennej pracy.
+- **Transformacje kontekstowe:** transformacje tekstu mogą dopasowywać się w zależności od kontekstu. np. w przeglądarce, gdy aktywna karta jest w domenie github.com, transformacje tekstu automatycznie dopasowują się do naszego stylu tworzenia dokumentacji / opisów issues.
+- **Wizualizacja zaznaczenia:** zmiana tekstu na wizualizację i to bardzo precyzyjną, a nawet w wybranym stylu jest już dziś możliwa, szczególnie z tak precyzyjnymi modelami jak Nano Banana 2, bądź poprzez konwertowanie HTML do obrazu PNG.
+- **Odnalezienie powiązań:** zakładając, że budujemy własną bazę wiedzy, zaznaczony tekst może być zamieniony na zapytanie do wyszukiwarki, która natychmiast otworzy powiązane notatki (np. poprzez deep-link / x-scheme-url)
+- **Opisanie zaznaczenia:** przy pracy z generowaniem obrazu przydatne jest opisywanie stylu, który może być generowany automatycznie na podstawie zdjęć znajdujących się w schowku systemowym.
+- **Lokalizacja zdjęcia:** zdjęcie zrobione w telefonie może być przesłane wraz z metadanymi, na przykład lokalizacją. Na podstawie treści zdjęcia może zostać podjęta określona akcja, np. dopisanie przedmiotu do listy zakupów.
 
-Patrząc ponownie na nasz przykład, przy podejmowaniu decyzji kształtujących projekt, bierzemy pod uwagę przede wszystkim:
+![Przykłady mikro-akcji](https://cloud.overment.com/2026-03-05/ai_devs_4_microactions-fa8c17e9-a.png)
 
-- **Użytkownik**: jest to osoba potrafiąca programować, więc możemy pozwolić sobie na nieco większy poziom złożoności narzędzi, co jednocześnie umożliwi zmniejszenie limitów narzucanych na agenta (np. możliwość uruchamiania kodu czy obsługę terminala). Musimy jednak zadbać o odpowiedni poziom bezpieczeństwa, więc wykorzystamy także **sandbox**.
-- **Treść:** tworzy ją użytkownik niemal wyłącznie na własne potrzeby. W klasycznych cyfrowych ogrodach jest tworzona ręcznie, przy częściowym wsparciu automatyzacji. Jej pełne generowanie przez AI nie niesie wartości dla użytkownika, ale jej wzbogacanie już tak. Agent będzie miał więc pełne uprawnienia dostępu, ale będzie działał według ustalonych zasad.
-- **Format:** cyfrowy ogród ma formę strony www, a kod HTML może edytować zarówno użytkownik-programista oraz model językowy. Ale w praktyce ręczne edytowanie HTML nie jest wygodne, szczególnie przy pisaniu notatek czy dłuższych form tekstowych. Dlatego formatem treści będzie markdown, a proces konwertowania do HTML zostanie zrealizowany wyłącznie poprzez kod.
-- **Integracje:** powiedzieliśmy, że agent może wykonywać kod, więc będziemy mogli zastosować koncepcję "skills" oraz obsługę narzędzi przez "code mode". Taka konfiguracja pozwala nam zarówno na stosowanie **CLI** jak i **MCP** oraz natywnych narzędzi. Nie jesteśmy więc pod tym kątem w żaden sposób ograniczeni.
-- **Publikacja:** generowana strona to statyczny HTML, więc w zupełności wystarczy nam tu wszystko to, co oferuje Github Pages. Dzięki Github Actions, treść strony zostanie zaktualizowana za każdym razem, gdy w repozytorium pojawią się jakieś zmiany. Publiczny charakter koncepcji "Cyfrowego Ogrodu" sprawia też, że problem prywatności treści nie istnieje tutaj "by design".
-- **Dostępność:** agent powinien być dostępny przez API, aby możliwość zapisywania informacji bądź ich przypominania była dostępna z dowolnego miejsca. Oznacza to, że zarówno sama aplikacja jak i dokumenty markdown **muszą znajdować się na zdalnym serwerze** i być synchronizowane z komputerem użytkownika na przykład poprzez [Mutagen](https://mutagen.io/documentation/synchronization/)
+Tworzenie takich akcji zwykle będzie sprowadzało się do utworzenia prostego skryptu i przypisania go do skrótu klawiszowego czy połączenia z aplikacjami do automatyzacji w telefonie, np. Siri Shortcuts. Automatyzacje mogą być też powiązane z konkretnymi katalogami czy przestrzeniami w zdalnych dyskach. Obecnie też bez problemu możemy też wygenerować aplikację desktopową bądź mobilną w Swift / Electron / Tauri / React Native i zyskać dostęp do natywnych funkcjonalności urządzeń. Takie aplikacje nie muszą być udostępniane publicznie, ale być wykorzystywane w naszym prywatnym kontekście.
 
-Z takiego procesu myślowego powstaje nam pewnego rodzaju mapa określająca obszary na których możemy się skupić. Co prawda w naszej sytuacji byliśmy w stanie samodzielnie odpowiedzieć na wszystkie pytania, ponieważ jest to projekt, który tworzymy dla siebie. W praktyce nie zawsze będzie to takie oczywiste i to nie tylko ze względu na dostępność informacji, ale także określenie tego, **czy są one słuszne.** Dobrze jest więc przygotować się na **szybkie iteracje** oraz utrzymać możliwie wysoką elastyczność projektu.
+## Projektowanie własnych meta-promptów
 
-![Mapa decyzyjna dotycząca architektury wdrożenia](https://cloud.overment.com/2026-03-04/ai_devs_4_decision_map-8088af1a-f.png)
+Bezpośrednia współpraca z AI różni się od projektowania systemów agentowych tym, że raczej nie poświęcamy zbyt dużo czasu na pisanie promptów. Niekiedy można spotkać się z opiniami, że projektowanie promptów nie ma już znaczenia z punktu widzenia użytkownika końcowego, ponieważ model i tak zrozumie to, o co nam chodzi. W zamian przeszliśmy do koncepcji generowania planów i specyfikacji, co też jest mocno sugerowane przez narzędzia takie jak Claude Code oraz Cursor w przypadku których tryb ten może włączyć się automatycznie i przeprowadzić nas przez proces opracowania rozbudowanego dokumentu opisującego zadania, które ma wykonać dla nas agent.
 
-Wdrożenie takiego planu na tym etapie jest już relatywnie "proste", ponieważ omówiliśmy już wszystkie mechaniki dotyczące AI, czyli: logikę agenta, obsługę narzędzi, pracę z plikami, sandbox, workflows czy kwestie bezpieczeństwa oraz optymalizacji. Reszta dotyczy już wyłącznie mechanik, które być może znamy już z kodu.
+Projektowanie agentów pokazało nam, że napisanie instrukcji dzięki której model będzie realizował nie **jedno zadanie**, lecz całą **kategorię zadań** jest dość wymagające, szczególnie jeśli chcemy aby zrobił to za pierwszym razem, bez naszej interwencji. Tym bardziej, że nie chodzi tu wyłącznie o poziom inteligencji modelu, lecz także przekazanie niezbędnej wiedzy, zarysowanie kontekstu czy nadanie reguł, których model zwyczajnie nie posiada. Po zgromadzeniu tych informacji musimy także zadbać np. o ich syntezę czy parafrazę, aby uniknąć powtórzeń czy zwiększyć nacisk na wybrane zachowania. To również bywa czasochłonne i niekiedy również trudne.
 
-Przy wdrożeniu rozwiązań AI godny uwagi jest również balans pomiędzy logiką kodu, a zaangażowaniem modelu. Widoczna poniżej wersja wcześniejszego schematu z nałożonymi kolorami oraz etykietami jasno sugeruje, że elementy **aplikacji, które znamy z codziennej pracy** nadal stanowią zdecydowaną większość całej architektury.
+Powyższy proces można sprowadzić do serii pytań oraz odpowiedzi, które pozwolą zgromadzić wymagane informacje, a potem ukształtować z nich instrukcję według praktyk, które uznamy za słuszne. Poniżej mamy koncepcyjny schemat meta-promptu którego celem jest **generowanie instrukcji dla agentów** na podstawie **rozmowy z użytkownikiem**. Także nie jest to autonomiczny proces i rola człowieka jest tu fundamentalna. Meta-prompt składa się więc z:
 
-![Balans pomiędzy rozwiązaniami programistycznymi i AI](https://cloud.overment.com/2026-03-04/ai_devs_4_decision_map_roles-4544c002-a.png)
+- **Danych:** opisujących kategorie informacji, które powinny zostać zgromadzone od użytkownika. Chodzi tu o rzeczy takie jak **cel, zakres, styl, narzędzia, wzorce, modele mentalne, ograniczenia, format, wyjątki**. Inaczej mówiąc, jest to wszystko to, czego model nie posiada oraz to, na czym powinien się skupić.
+- **Generatora:** obejmuje domyślne struktury, zasady specjalizacji oraz generalizacji, przydatne wyrażenia czy obszary na których powinna skupiać się końcowa instrukcja. Znajdziemy więc tutaj wskazówki kształtowania stylu, zachowań czy schematów "myślowych", które normalnie staramy się stosować samodzielnie przy budowie instrukcji agentów. Można o tym myśleć, jak o **wiedzy na temat dobrych praktyk tworzenia promptów** z których tym razem nie korzystamy my, lecz model / agent generujący nowy prompt.
+- **Rezultatu:** tutaj zwykle chodzi o rodzaj szablonu bądź komponentów na podstawie których ma powstać końcowa instrukcja. W tym przypadku są to raczej stałe sekcje takie jak **tożsamość, opis procesu myślowego, zasady i ograniczenia, zewnętrzna wiedza oraz styl wypowiedzi**.
 
-Co ciekawe, jeszcze kilkanaście miesięcy temu mówiliśmy tu raczej o podziale 90-10 bądź 80-20. Wówczas scenariusze, w których AI rzeczywiście się sprawdzało, były bardzo ograniczone. Teraz logika agentów zwiększa rolę modeli i w niektórych sytuacjach możemy obserwować nawet **odwrócone proporcje**.
+![Koncepcja meta-promptu](https://cloud.overment.com/2026-03-05/ai_devs_4_metaprompt-6061f547-a.png)
 
-## Weryfikowanie początkowych założeń przez "proste" testy
+Przykładową treść jednego z meta-promptów który wykorzystuję jako punkt startowy dla instrukcji agentów można znaleźć [tutaj](https://cloud.overment.com/metaprompt-1772797061.txt) (to plik tekstowy, który powinien zostać pobrany na komputer). Nietrudno zauważyć, że to bardzo rozbudowana instrukcja, głównie ze względu na dużą liczbę przykładów, wyrażeń oraz definicji obszarów, które model powinien rozważyć oraz zasad **dopasowania się** do bieżącego kontekstu.
 
-Powiedziałem, że część decyzji, które podejmiemy na etapie określania założeń projektu będzie błędna. Choć tego samego możemy doświadczyć przy budowaniu projektów niewykorzystujących AI, tak tutaj do gry wchodzą także trudne do przewidzenia **zachowania modeli**, bądź komplikacje związane z API (np. koszty). Możliwe są też odwrotne scenariusze, na przykład gdy najnowsze modele umożliwiają zrobienie czegoś, co do tej pory wydawało się "niemożliwe".
+Ze względu na tak dużą złożoność dość uzasadnione bywa także **rozbicie procesu generowania promptów na oddzielne fazy**. Bo jeśli spojrzymy sobie na strukturę promptu widoczną poniżej, to wyraźnie widać w niej poszczególne etapy, które mogą zostać pogrupowane. Jednocześnie schemat ten pokazuje najważniejsze obszary meta-promptu, takie jak:
 
-Patrząc na nasz przykład, możemy przeprowadzić kilka prostych testów:
+- **Proces:** model zostaje na początku poinformowany o tym, że jego celem jest przeprowadzenie użytkownika przez serię pytań w celu ukształtowania instrukcji dla modelu językowego, zgodnie z opisanymi zasadami i szablonem.
+- **Strategia:** następnie mamy kilka punktów opisujących strategię realizacji celu, uwzględniając przy tym konieczność dopasowania się do bieżącej sytuacji.
+- **Dopasowanie:** ze względu na znaczenie dopasowania, oddzielna sekcja zawiera zasady, które powinny być uwzględnione przy generowaniu promptów agentów specjalizujących się w różnych dziedzinach. Poza tym, należy też uwzględnić specjalne wymagania użytkownika, które niekiedy mogą wykraczać poza domyślną strukturę.
+- **Format:** w tej sekcji znajduje się szablon oraz komponenty instrukcji końcowej, a także sposób jej zaprezentowania. Akurat w tym przypadku mówimy o wyświetleniu jej wewnątrz specjalnego bloku markdown, który będzie umożliwiał "instalację" promptu.
+- **Zasady:** w związku z tym, że proces generowania promptu opiera się o zadawanie pytań, model musi być poinformowany o tym, jak przeprowadzić przez niego użytkownika. Są tu uwzględnione elementy takie jak **oczekiwanie na odpowiedź** bądź **pogłębianie niejasnych instrukcji**, ponieważ model nie powinien zgadywać czegoś, co powinien otrzymać od użytkownika.
+- **Natywne funkcjonalności:** jest to sekcja dodatkowa, występująca akurat w tym meta-prompcie. Dotyczy natywnych funkcjonalności aplikacji, które muszą być wzięte pod uwagę, ponieważ poza wygenerowaniem instrukcji, model musi wygenerować także **ustawienia agenta**, które zostaną potraktowane jako domyślne. Sama koncepcja jest bardzo użyteczna, ponieważ generowanie promptów nie musi sprowadzać się wyłącznie do utworzenia samej instrukcji.
+- **Proces generowania:** meta-prompt zawiera wiele instrukcji, przykładów oraz możliwych komponentów końcowej instrukcji. Dlatego w końcowej sekcji znajdują się zasady, które zwracają uwagę na to, że pod uwagę należy brać wyłącznie elementy istotne z punktu widzenia bieżącego kontekstu konwersacji oraz celu użytkownika, a także wskazują, jak powinien wyglądać proces selekcji.
+- **Krytyczne zasady:** tak jak już mówiliśmy, na sam koniec instrukcji warto jest podkreślić najważniejsze zasady oraz rzeczy, których chcemy uniknąć. Jeśli możliwe, to część z tych reguł powinna pojawiać się także w metadanych wiadomości użytkownika.
 
-- **Wzbogacanie:** jednym z założeń jest uzupełnianie notatek użytkownika o dodatkową wiedzę. Może się jednak okazać, że model samodzielnie nie jest w stanie dobrze określić, co powinno być dodane i czy w ogóle powinno być dodawane. Wówczas może okazać się, że uzasadnione będzie dodanie właściwości **frontmatter** do pliku markdown, w której użytkownik będzie mógł zostawić notatkę, która ukierunkuje działanie agenta.
-- **Budowanie:** tworzenie nowych wpisów (np. dodawanie zasobów wiedzy) może odbywać się w wyniku prostej akcji użytkownika, takiej jak przesłanie adresu URL. Agent może odczytać jego zawartość i samodzielnie zdecydować o tym, gdzie dany wpis ma się pojawić oraz w jaki sposób ma zostać opisany. Dobrym pomysłem jest zbudowanie zestawów danych i przygotowanie ewaluacji, aby sprawdzić jaki model i jego konfiguracja najlepiej poradzą sobie z tym zadaniem.
-- **Dostępność:** jednym z najważniejszych elementów obecności AI w projekcie cyfrowego ogrodu jest możliwość łatwego dostępu do jego treści. Tutaj od razu na myśl przychodzi **chatbot** z którym możemy porozmawiać na temat posiadanych dokumentów. Pytanie jednak **czy jest to konieczne**. Może wystarczy nam dobrze skonfigurowana wyszukiwarka bądź aplikacja mobilna, dzięki którym natychmiast dostaniemy się do oryginalnych dokumentów.
+![Przykładowa struktura metapromptu](https://cloud.overment.com/2026-03-06/ai_devs_4_metaprompt_structure-5f0b61c4-c.png)
 
-Każdy z takich testów możemy zrealizować w bardzo krótkim czasie i uzyskać odpowiedź na pytania, na podstawie których zdecydujemy o sposobie wdrożenia projektu. Tym bardziej, że dziś przez "proste testy" nie mamy na myśli już prostych prototypów, ale nawet **wygenerowanie natywnej aplikacji mobilnej** z relatywnie zaawansowanymi funkcjonalnościami.
+Koncepcja meta-promptu może na pierwszy rzut oka wyglądać jak coś, co ma bardzo wąskie zastosowanie. Szczególnie jeśli pracujemy z agentami do kodowania, gdzie poza trybem planowania i ewentualnie ustawienia głównych instrukcji AGENTS.md raczej nie zastanawiamy się zbyt dużo nad sposobem prowadzenia konwersacji (co swoją drogą jest błędem, ale też nie chodzi tu o projektowanie rozbudowanych promptów w każdej wiadomości). Natomiast w praktyce, koncepcja meta-promptów będzie pojawiać się bardzo często. Na przykład:
 
-Przekładając to na realia biznesowe, może się okazać, że klient otrzyma do testów wybrane funkcjonalności już w zaledwie kilka dni, a w skrajnych przypadkach nawet po kilku godzinach, szczególnie w kontekście startupów bądź projektach agencyjnych. Ale nawet jeśli nie będziemy patrzeć na to wyłącznie przez pryzmat **szybkości** budowy prototypów, to nadal mówimy tu o możliwości **testowania wielu pomysłów równolegle** oraz **weryfikowaniu tez w rozbudowanych środowiskach testowych**, które wiernie oddają rzeczywistość bądź w niektórych przypadkach nawet o testach obejmujących realny kontekst użytkowników końcowych oraz ich feedback.
+- **Onboarding:** nowi użytkownicy często przechodzą przez proces początkowej konfiguracji aplikacji i na tej podstawie możemy mieć potrzebę stworzenia instrukcji dopasowanych do ich kontekstu, a nie zawsze będzie to możliwe przez logikę kodu. Przykładowo jeśli prowadzimy platformę typu marketplace, gdzie użytkownik może dodać swoje produkty, to najwięcej informacji uzyskamy z ich opisów, strony produktu czy dołączonych zdjęć. Dane te pozwolą na lepszą personalizację np. funkcjonalności generowania opisów czy kreacji reklamowych.
+- **Generowanie obrazów:** w narzędziach marketingowych czy sprzedażowych, często będzie pojawiać się potrzeba generowania bądź edycji obrazu w sposób dopasowany do danego produktu oraz tonu marki. Tutaj także generowanie instrukcji będzie bardzo pomocne.
+- **Czatboty i agenci:** narzędzia takie jak Claude czy Claude Code już teraz mają meta-prompty do generowania instrukcji dla subagentów lub skilli. Dlatego, niezależnie od tego, czy mówimy o kontekście programistycznym, czy biznesowym, usprawnienie procesu tworzenia promptów jest mile widziane przez użytkowników. Co więcej, może to również wpłynąć na odbiór naszego produktu, ponieważ sama personalizacja może bezpośrednio przełożyć się na jego użyteczność i skuteczność.
+- **Optymalizacja:** nawet w przypadku relatywnie prostych mechanik czy agentów wyspecjalizowanych w wybranych obszarach (np. klasyfikacji danych) możemy mówić o strategiach automatycznych optymalizacji. Tutaj także chodzi o zastosowanie koncepcji meta-promptów.
 
-Poniżej mamy wizualizację, której celem jest jedynie **orientacyjne** oraz uproszczone zobrazowanie różnicy pomiędzy prototypowaniem bez AI oraz wspólnie z nim. W rzeczywistości konieczne byłoby uwzględnienie także kwestii komunikacji i wymiany informacji z klientem, oczekiwania na feedback itd., więc nie zawsze różnice będą tak wyraźne. Natomiast pomimo wszystko mamy tutaj jasny sygnał, że **dostępność AI** zmienia całkowicie sposób w jaki w ogóle patrzymy na etap prototypowania i weryfikacji założeń.
-
-![Prototypowanie bez AI oraz z AI](https://cloud.overment.com/2026-03-04/ai_devs_4_prototyping-5052af56-a.png)
-
-Warto też mieć na uwadze fakt, że prezentowana powyżej sytuacja odnosi się nie tylko do procesu wdrożeń AI dla klientów, ale także **budowania funkcjonalności**, **procesu nauki** czy tworzenia rozwiązań w celu **optymalizacji swojej codzienności**. Być może jest to oczywiste, ale mówimy tutaj o konieczności zmiany nawyków i tutaj może okazać się, że **istnieje różnica pomiędzy tym, co wiemy, a tym co robimy**.
-
-## Źródła inspiracji oraz wiedzy
-
-Wdrożenia AI, zwłaszcza w obszarze biznesowym, charakteryzują się tym, że trudno dotrzeć do informacji na ich temat poza artykułami marketingowymi publikowanymi przez firmy wdrożeniowe. Takie treści rzadko zawierają detale istotne z naszego punktu widzenia i mogą stanowić co najwyżej źródło inspiracji i ogólnych pomysłów.
-
-Znacznie bardziej szczegółowe treści można znaleźć na blogach osób stojących za konkretnymi narzędziami. Niekiedy też mówimy tutaj o firmach, w których interesie również leży dostarczenie nam możliwie jakościowej wiedzy, która jednocześnie zachęci nas do skorzystania z ich produktów. Co więcej, nierzadko posiadają oni doświadczenie związane ze współpracą z klientami biznesowymi. Wśród nich są:
-
-- Blog [LlamaIndex](https://www.llamaindex.ai/blog)
-- Blog [Vercel](https://vercel.com/blog)
-- Blog [Langfuse](https://langfuse.com/blog)
-- Blog [Cloudflare](https://blog.cloudflare.com/code-mode/)
-- Blog [HumanLayer](https://www.humanlayer.dev/blog)
-- Blog [Philipp Schmid](https://www.philschmid.de/agent-harness-2026)
-- Blog [ngrok](https://ngrok.com/blog) (ostatnio piszą sporo na temat AI)
-- Blog [Manus](https://manus.im/blog)
-- Projekty [Nous Research](https://github.com/NousResearch/hermes-agent)
-- Projekt [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent)
-- Prezentacje [Braintrust](https://www.youtube.com/@BraintrustData)
-- Prezentacje [Databricks](https://www.youtube.com/@Databricks)
-- Prezentacje [AI Engineer](https://www.youtube.com/@aiDotEngineer)
-
-Warto także odnaleźć profile osób zaangażowanych w powyższe projekty i obserwować ich publikacje oraz treści, które podają dalej. Podobnie można zrobić z narzędziami z których korzystamy na co dzień, dla których istotną częścią modelu biznesowego jest współpraca z firmami.
+Podsumowując, po raz kolejny przekonujemy się, że pomimo wzrostu możliwości modeli językowych w zakresie rozumienia nawet bardzo ogólnych instrukcji, w praktyce nadal istnieje potrzeba włożenia dużej ilości pracy w ich optymalizację. Tym bardziej że od jakości tych promptów zależy skuteczność modeli, a w rezultacie także wartość, jaką daje nam AI w codziennej pracy oraz w produktach, które będziemy tworzyć.
 
 ## Fabuła
 
-![https://vimeo.com/1177416984](https://vimeo.com/1177416984)
+![https://vimeo.com/1177414973](https://vimeo.com/1177414973)
 
 ## Transkrypcja filmu z Fabułą
 
@@ -204,55 +182,129 @@ Warto także odnaleźć profile osób zaangażowanych w powyższe projekty i obs
 
 Numerze piąty!
 
-Przychodzę z dobrą wiadomością. Nasz wysłannik, dzięki Twojej pomocy, dotarł do miasta Skolwin i udało mu się wynegocjować dobre ceny dla wszystkich podzespołów niezbędnych do zbudowania małej turbiny wiatrowej. Chwilę będziemy czekać na dostawę tych części, ale przynajmniej wiemy, że niebawem trafią one w nasze ręce.
+Mamy już turbinę. Jest gotowa do produkcji prądu, ale jak to zwykle bywa, jest pewien haczyk. Nie udało nam się zdobyć do niej nowego akumulatora zasilającego, więc ten, który mamy działa już na rezerwie. Nie mamy też odpowiedniej ładowarki, a z częściami, którymi dysponujemy, raczej niczego nie wykombinujemy. W zespole brakuje nam MacGyvera, więc pomysł z budową ładowarki ze spiczaczy biurowych także odpada.
 
-Pojawił się jednak pewien problem, ponieważ nasze ruchy, jak się okazuje, nie były zupełnie niezauważone.
+Musimy więc ustalić konkretny dzień i konkretną godzinę, kiedy uruchomimy naszą turbinę i zaczniemy produkcję prądu niezbędnego do rozruchu komputerów sterujących. Elektrownia raportuje przez API, jakie ma obecnie niedobory prądu - jest to zmienne w czasie, więc zwróć na to uwagę! Musimy wyliczyć, na podstawie prognozy pogody, kiedy warunki atmosferyczne będą optymalne do wyprodukowania wymaganej mocy.
 
-Nie wspominałem Ci o tym, ale w świecie, w którym się znajdujemy, nie tylko komunikacja internetowa, radiowa, czy telefoniczna są podsłuchiwane. Kontroli podlega KAŻDA aktywność na terenie kraju. Trudno jest poruszać się, nie będąc zauważonym. Trudno jest handlować czymkolwiek, żeby system o tym nie wiedział, a tym bardziej trudno jest przelecieć niezauważonym na rakiecie przez środek pustkowia. Nie wiem co mieliśmy w głowie, gdy akceptowaliśmy ten plan...
+Musisz znaleźć pierwsze możliwe okno pogodowe, ponieważ zależy nam na czasie. Z tego, co widziałem w prognozie, czekają nas jeszcze spore zawieruchy i jest szansa, że połamią one nasz nowy nabytek.
 
-Ale nie martw się. Odkręcimy to wszystko.
+Istnieje jednak sposób na przetrwanie takich wichur. Wystarczy ustawić łopaty wirnika w taki sposób, aby nie stawiały oporu wiatrowi. To je ocali.
 
-Jakiś czas temu przy pomocy ataku phishingowego zdobyliśmy dostęp do jednego z kont w centrum operacyjnym OKO. Pewnie zastanawiasz się, czym jest to tajemnicze "OKO". To element Systemu, który służy do monitorowania wszystkich nietypowych incydentów, które zdarzyły się na terenie kraju.
+Przeanalizuj proszę prognozę pogody i określ, kiedy konkretnie czekają nas ogromne wichury. Ustaw łopaty wirnika w taki sposób, aby je przetrwały. Następnie znajdź pierwszy moment, kiedy jesteśmy w stanie wyprodukować potrzebną nam moc. Wyślij taką konfigurację do API centrali.
 
-Musisz się tam zalogować i zmienić dane, jakie są widoczne dla operatora. W ten sposób zatrzemy ślady po naszej rakietowej eskapadzie.
+Musisz wiedzieć, że wirnik mniej więcej godzinę po każdej większej wichurze wraca do standardowego ustawienia, więc czasami będzie wymagał on kilkukrotnego włączenia trybu ochronnego.
 
-Tylko pod żadnym pozorem — to bardzo ważne, powtarzam: pod żadnym pozorem! — nie wolno Ci niczego zmieniać w interfejsie webowym. Interfejs ten ma służyć Ci tylko do rozglądnięcia się po systemie i zdobycia odpowiednich informacji. Jeśli czegoś dotkniesz, operatorzy natychmiast będą wiedzieć, że tam byłeś, a wtedy odetną nam dostęp.
+Mamy też pewien problem, który nazwałbym "walką z czasem". Pamiętasz o umierającej baterii systemu sterowania turbiną? Przez tą baterię jesteśmy w stanie włączyć Ci okno serwisowe do konfiguracji tego urządzenia tylko na kilkadziesiąt sekund, a Ty przez ten czas musisz pobrać wszystkie niezbędne informacje przez nasze API, a następnie zaprogramować harmonogram pracy urządzenia i zgłosić do Centrali, że konfiguracja jest już gotowa.
 
-Wystawiliśmy Ci więc API do modyfikacji danych prezentowanych w ich systemie.
-
-W notatce do tego nagrania znajdziesz informację, co konkretnie należy zmienić. Wykonaj to proszę dla nas. To bardzo ważne. Bez tych modyfikacji, Skolwin skończy tak, jak to poprzednie miasto.
+Jeśli wszystko pójdzie zgodnie z planem, to znaczy, że już w tym tygodniu będziemy gotowi na rozpoczęcie produkcji prądu. Więcej informacji, jak zawsze, znajdziesz w notatce do tego filmu.
 
 ## Zadanie praktyczne
 
-Twoim zadaniem jest wprowadzenie zmian w Centrum Operacyjnym OKO za pomocą API wystawionego przez centralę.
+Twoim zadaniem jest zaprogramowanie harmonogramu pracy turbiny wiatrowej w taki sposób, aby uzyskać moc niezbędną do uruchomienia elektrowni.
 
-Zdobyliśmy login i hasło do wejścia do tego systemu, ale nie wolno Ci wprowadzać tam żadnych ręcznych zmian. Cała edycja musi odbywać się przez nasze tylne wejście.
+Elektrownia nie może pracować przez cały czas, ponieważ jej bateria na to nie pozwoli. Musisz więc uruchomić jej system tylko wtedy, gdy naprawdę będzie wymagany. Jesteś w stanie znaleźć idealny czas poprzez analizę wyników prognozy pogody.
 
-Zadanie nazywa się: **okoeditor**
+Dostarczone przez nas API dają Ci też informacje na temat stanu samej turbiny oraz na temat wymagań elektrowni. Przygotowanie raportu do każdej z funkcji wymaga czasu. Nie jesteśmy w stanie powiedzieć, ile konkretnie czasu zajmie wykonanie danej funkcji, ale wywołania te są kolejkowane. Później musisz tylko wywołać funkcję do pobierania wygenerowanych raportów.
 
-Nasze API jest dostępne standardowo pod adresem `/verify`
+Każdy wygenerowany raport da się pobrać tylko jednokrotnie. Jeśli uda Ci się wszystko skonfigurować w czasie **40 sekund**, to jesteśmy uratowani i możemy przejść do fazy produkcji prądu.
 
-Panel webowy operatora: https://oko.ag3nts.org/
+Nazwa zadania: **windpower**
 
-- Login: Zofia
-- Hasło: Zofia2026!
-- Klucz: Twój apikey
+Odpowiedź wysyłasz do /verify
 
-Na początek zacznij od zapoznania się z API dostępnym pod /verify w Centrali.
+> **UWAGA**: to zadanie posiada limit czasu (40 sekund), w którym musisz się zmieścić. Liniowe wykonywanie wszystkich akcji nie umożliwi Ci ukończenia zadania.
+
+Z API porozumiewasz się w ten sposób:
 
 ```json
 {
   "apikey": "tutaj-twoj-klucz",
-  "task": "okoeditor",
+  "task": "windpower",
+  "answer": {
+    "action": "..."
+  }
+}
+```
+
+Sugerujemy od rozpoczęcia:
+
+```json
+{
+  "apikey": "tutaj-twoj-klucz",
+  "task": "windpower",
   "answer": {
     "action": "help"
   }
 }
 ```
 
-Gdy wprowadzisz wszystkie wymagane zmiany na stronie, wykonaj akcję **done**. Oto Twoja lista zadań:
+Zanim przystąpisz do konfiguracji turbiny wiatrowej, musisz uruchomić okno serwisowe poprzez wydanie polecenia:
 
-- Zmień klasyfikację raportu o mieście Skolwin tak, aby nie był to raport o widzianych pojazdach i ludziach, a o zwierzętach.
-- Na liście zadań znajdź zadanie związane z miastem Skolwin i oznacz je jako wykonane. W jego treści wpisz, że widziano tam jakieś zwierzęta np. bobry.
-- Musimy przekierować uwagę operatorów na inne, niezamieszkałe miasto, aby ocalić Skolwin. Spraw więc, aby na liście incydentów pojawił się raport o wykryciu ruchu ludzi w okolicach miasta Komarowo.
-- Gdy to wszystko wykonasz, uruchom akcję "done".
+```json
+{
+  "apikey": "tutaj-twoj-klucz",
+  "task": "windpower",
+  "answer": {
+    "action": "start"
+  }
+}
+```
+
+Przykładowe wysłanie konfiguracji może wyglądać tak - **w godzinie zawsze ustawiaj minuty i sekundy na zera**.
+
+```json
+{
+  "apikey": "tutaj-twoj-klucz",
+  "task": "windpower",
+  "answer": {
+    "action": "config",
+    "startDate": "2238-12-31",
+    "startHour": "12:00:00",
+    "pitchAngle": 0,
+    "turbineMode": "idle",
+    "unlockCode": "tutaj-podpis-md5-z-unlockCodeGenerator"
+  }
+}
+```
+
+Możesz także wysłać wiele konfiguracji za jednym razem - inny format danych.
+
+```json
+{
+  "apikey": "tutaj-twoj-klucz",
+  "task": "windpower",
+  "answer": {
+    "action": "config",
+    "configs": {
+      "2026-03-24 20:00:00": {
+        "pitchAngle": 45,
+        "turbineMode": "production",
+        "unlockCode": "tutaj-podpis-1"
+      },
+      "2026-03-24 18:00:00": {
+        "pitchAngle": 90,
+        "turbineMode": "idle",
+        "unlockCode": "tutaj-podpis-2"
+      }
+    }
+  }
+}
+```
+
+### Co musisz zrobić
+
+- Odczytaj z prognozy pogody wszystkie momenty, w których wiatr jest bardzo silny i może zniszczyć łopaty wiatraka. Zabezpiecz wtedy turbinę (odpowiednie nachylenie łopat i odpowiedni tryb pracy).
+- Wyznacz punkt, w którym możliwe jest wygenerowanie brakującej energii i ustaw tam optymalne nachylenie łopat wirnika i poprawny tryb pracy umożliwiający produkcję prądu.
+- Każda przesłana do API konfiguracja musi być cyfrowo podpisana. Mamy jednak generator kodów, który takie kody dla Ciebie wygeneruje - unlockCodeGenerator, a wygenerowane kody wyślij razem z konfiguracją.
+- Zapisz konfigurację przez "config".
+- Na końcu wyślij akcję o nazwie "done", która sprawdzi, czy Twoja konfiguracja jest poprawna.
+
+### Dodatkowe uwagi
+
+- Większość funkcji działa asynchronicznie. Najpierw dodajesz zadanie do kolejki, potem odbierasz wynik przez action "getResult". Odpowiedzi przychodzą w losowej kolejności.
+- Za wichurę uznajesz wiatr powyżej wytrzymałości wiatraka.
+- Przy wichurze turbina nie powinna stawiać oporu i nie może produkować prądu.
+- Przed finalnym "done" musisz wykonać test turbiny przez "turbinecheck".
+- Każdy punkt konfiguracji musi mieć poprawny unlockCode z funkcji "unlockCodeGenerator".
+
+Jeśli konfiguracja będzie poprawna i zmieścisz się w czasie, Centrala odeśle flagę.
