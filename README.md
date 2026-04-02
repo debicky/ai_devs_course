@@ -33,6 +33,7 @@ Lesson mapping:
 - Lesson 16: `bin/week_4/okoeditor_16` (`okoeditor`)
 - Lesson 17: `bin/week_4/windpower_17` (`windpower`)
 - Lesson 18: `bin/week_4/domatowo_18` (`domatowo`) — **`{FLG:WEVEGOTHIM}`**
+- Lesson 19: `bin/week_4/filesystem_19` (`filesystem`) — **`{FLG:DEALWITHIT}`**
 
 ## Lesson notes
 
@@ -53,6 +54,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 13 / `reactor` / `bin/week_3/reactor_13` → [`docs/lessons/lesson-13-reactor.md`](docs/lessons/lesson-13-reactor.md)
 - Lesson 14 / `negotiations` / `bin/week_3/negotiations_14` → [`docs/lessons/lesson-14-negotiations.md`](docs/lessons/lesson-14-negotiations.md)
 - Lesson 18 / `domatowo` / `bin/week_4/domatowo_18` → [`docs/lessons/lesson-18-domatowo.md`](docs/lessons/lesson-18-domatowo.md)
+- Lesson 19 / `filesystem` / `bin/week_4/filesystem_19` → [`docs/lessons/lesson-19-filesystem.md`](docs/lessons/lesson-19-filesystem.md)
 
 ## Structure
 
@@ -78,6 +80,7 @@ bin/
     okoeditor_16                  # Lesson 16: OKO editor task entrypoint
     windpower_17                  # Lesson 17: wind turbine config entrypoint
     domatowo_18                   # Lesson 18: domatowo rescue mission entrypoint
+    filesystem_19                 # Lesson 19: filesystem knowledge base entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -95,6 +98,7 @@ docs/
     lesson-13-reactor.md          # lesson note / source material (week 3)
     lesson-14-negotiations.md     # lesson note / source material (week 3)
     lesson-18-domatowo.md         # lesson note / source material (week 4)
+    lesson-19-filesystem.md       # lesson note / source material (week 4)
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -184,10 +188,13 @@ app/
         runner.rb                 # wind turbine config state machine
       domatowo/
         runner.rb                 # tactical rescue: transporters, scouts, inspect B3 blocks
+      filesystem/
+        runner.rb                 # parse Natan's notes, build virtual filesystem via batch API
     tasks/
       okoeditor_task.rb
       windpower_task.rb
       domatowo_task.rb
+      filesystem_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -658,6 +665,34 @@ Notes:
 - Detection uses positive phrase matching on Polish inspection log messages rather than negative exclusion, which proved more robust against the wide variety of randomised "nobody here" messages.
 - Worst-case budget: ~170 action points out of the 300 allowed.
 
+## Lesson 19 / Task 19: `filesystem` (`bin/week_4/filesystem_19`)
+
+**Flag: `{FLG:DEALWITHIT}`**
+
+What `bin/week_4/filesystem_19` does:
+
+1. Resets the virtual filesystem via `action: "reset"`.
+2. Parses Natan's notes (downloaded from the hub as a zip) to extract:
+   - **City needs** (from `ogłoszenia.txt`) — what each city requires and how much.
+   - **Trade contacts** (from `rozmowy.txt`) — who is responsible for trade in each city.
+   - **Goods for sale** (from `transakcje.txt`) — which cities sell which goods.
+3. Builds a single batch of 32 operations (3 directories + 8 city files + 8 person files + 13 goods files).
+4. City files (`/miasta/`) contain JSON with needed goods and quantities (no units).
+5. Person files (`/osoby/`) contain the person's name and a markdown link to their city file.
+6. Goods files (`/towary/`) contain markdown links to all cities that sell that good. File names use nominative singular without Polish characters.
+7. Sends the entire batch in one request, then calls `action: "done"` for verification.
+
+```bash
+chmod +x bin/week_4/filesystem_19
+bin/week_4/filesystem_19
+```
+
+Notes:
+- No LLM is needed — all data is extracted manually from the three text files.
+- The entire filesystem is created in a single batch API call for efficiency.
+- File/directory names use `^[a-z0-9_]+$` pattern (no Polish characters).
+- Markdown links in `/osoby/` and `/towary/` files point to existing `/miasta/` files, satisfying the API validation rule.
+
 ## Quick-run examples
 
 ```bash
@@ -685,6 +720,7 @@ bin/week_3/negotiations_14                  # Lesson 14: public negotiations too
 
 # Week 4
 bin/week_4/domatowo_18                      # Lesson 18: domatowo rescue mission
+bin/week_4/filesystem_19                    # Lesson 19: filesystem knowledge base
 ```
 
 ## Notes
@@ -701,6 +737,7 @@ bin/week_4/domatowo_18                      # Lesson 18: domatowo rescue mission
 - `firmware` uses a Function Calling agent loop to drive a remote VM shell; the agent calls `execute_shell(cmd)` to explore the filesystem, find the password and fix `settings.ini`, then runs the cooler binary to obtain the `ECCS-` code and submits it via `submit_answer`.
 - `reactor` is fully deterministic: it parses the live board, simulates each block's 6-step motion cycle, plans a safe path with BFS over future phases, and executes the resulting `left` / `wait` / `right` sequence to reach column 7 without being crushed.
 - `negotiations` exposes a compact public HTTP tool over the `s03e04_csv` dataset; it fuzzy-matches natural-language item requests to exact catalog entries and returns the cities that sell one item or the cities common to multiple requested items, then polls the asynchronous verification flow with `action: "check"`.
+- `filesystem` parses three text files from Natan's notes (city needs, trade contacts, transaction history) and builds a virtual filesystem with `/miasta/`, `/osoby/`, and `/towary/` directories in a single batch API call — no LLM needed.
 - `domatowo` is a tactical grid puzzle: transporters ferry scouts cheaply along roads, scouts walk the last mile to inspect B3 (tallest) blocks, and positive-phrase detection on Polish log messages identifies the partisan before calling the evacuation helicopter — no LLM needed.
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.

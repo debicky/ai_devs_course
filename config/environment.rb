@@ -101,8 +101,10 @@ require_relative '../app/s03/tasks/savethem_task'
 require_relative '../app/s04/services/okoeditor/runner'
 require_relative '../app/s04/services/windpower/runner'
 require_relative '../app/s04/services/domatowo/runner'
+require_relative '../app/s04/services/filesystem/runner'
 
 # S04 — Week 4 Tasks
 require_relative '../app/s04/tasks/okoeditor_task'
 require_relative '../app/s04/tasks/windpower_task'
 require_relative '../app/s04/tasks/domatowo_task'
+require_relative '../app/s04/tasks/filesystem_task'
