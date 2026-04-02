@@ -26,6 +26,13 @@ Lesson mapping:
 - Lesson 12: `bin/week_3/firmware_12` (`firmware`)
 - Lesson 13: `bin/week_3/reactor_13` (`reactor`) — **`{FLG:INSTALLED}`**
 - Lesson 14: `bin/week_3/negotiations_14` (`negotiations`) — **`{FLG:WINDFARM}`**
+- Lesson 15: `bin/week_3/savethem_15` (`savethem`)
+
+### Week 4
+
+- Lesson 16: `bin/week_4/okoeditor_16` (`okoeditor`)
+- Lesson 17: `bin/week_4/windpower_17` (`windpower`)
+- Lesson 18: `bin/week_4/domatowo_18` (`domatowo`) — **`{FLG:WEVEGOTHIM}`**
 
 ## Lesson notes
 
@@ -45,6 +52,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 12 / `firmware` / `bin/week_3/firmware_12` → [`docs/lessons/lesson-12-firmware.md`](docs/lessons/lesson-12-firmware.md)
 - Lesson 13 / `reactor` / `bin/week_3/reactor_13` → [`docs/lessons/lesson-13-reactor.md`](docs/lessons/lesson-13-reactor.md)
 - Lesson 14 / `negotiations` / `bin/week_3/negotiations_14` → [`docs/lessons/lesson-14-negotiations.md`](docs/lessons/lesson-14-negotiations.md)
+- Lesson 18 / `domatowo` / `bin/week_4/domatowo_18` → [`docs/lessons/lesson-18-domatowo.md`](docs/lessons/lesson-18-domatowo.md)
 
 ## Structure
 
@@ -65,6 +73,11 @@ bin/
     firmware_12                   # Lesson 12: VM shell agent entrypoint
     reactor_13                    # Lesson 13: deterministic reactor runner entrypoint
     negotiations_14               # Lesson 14: public negotiations tool server
+    savethem_15                   # Lesson 15: pathfinder rescue entrypoint
+  week_4/
+    okoeditor_16                  # Lesson 16: OKO editor task entrypoint
+    windpower_17                  # Lesson 17: wind turbine config entrypoint
+    domatowo_18                   # Lesson 18: domatowo rescue mission entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -81,6 +94,7 @@ docs/
     lesson-12-firmware.md         # lesson note / source material (week 3)
     lesson-13-reactor.md          # lesson note / source material (week 3)
     lesson-14-negotiations.md     # lesson note / source material (week 3)
+    lesson-18-domatowo.md         # lesson note / source material (week 4)
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -162,6 +176,18 @@ app/
       firmware_task.rb
       negotiations_task.rb
       reactor_task.rb
+  s04/                            # Week 4
+    services/
+      okoeditor/
+        runner.rb                 # OKO editor runner
+      windpower/
+        runner.rb                 # wind turbine config state machine
+      domatowo/
+        runner.rb                 # tactical rescue: transporters, scouts, inspect B3 blocks
+    tasks/
+      okoeditor_task.rb
+      windpower_task.rb
+      domatowo_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -605,6 +631,33 @@ Notes:
 - If `PUBLIC_BASE_URL` is not provided, the runner attempts to expose the local server with `ngrok` automatically.
 - Verified result returned by the hub: `cities = ["Domatowo", "Skolwin"]`.
 
+## Lesson 18 / Task 18: `domatowo` (`bin/week_4/domatowo_18`)
+
+**Flag: `{FLG:WEVEGOTHIM}`**
+
+What `bin/week_4/domatowo_18` does:
+
+1. Resets the 11x11 city board via `action: "reset"` (randomises partisan position).
+2. Identifies all B3 (3-floor) block tiles — the tallest buildings where the partisan is hiding.
+3. Groups B3 tiles into three clusters: north (F1, G1, G2, F2), south-west (A10–C11), south-east (H10–I11).
+4. Creates a transporter with 1 scout and drives it to D1 (north road) via the cheap road network (1 pt/field).
+5. Dismounts the scout and inspects each north B3 tile (7 pts/field walk + 1 pt/inspect).
+6. If not found, creates a second transporter with 2 scouts, drives to B9, drops one scout for the SW group, continues to I9, drops the last scout for the SE group.
+7. Scouts inspect their assigned tiles sequentially, checking each inspection log for positive contact phrases (`mamy cel`, `kontakt z celem`, `mężczyzna`).
+8. Once a scout confirms a human, calls the evacuation helicopter to that tile.
+
+```bash
+chmod +x bin/week_4/domatowo_18
+bin/week_4/domatowo_18
+```
+
+Notes:
+- No LLM is needed — the solver is fully deterministic.
+- Transporters can only drive on road tiles (`UL`) but are very cheap (1 pt/field). Scouts walk on any terrain but cost 7 pts/field, so minimising scout walking distance is critical.
+- The partisan's position is randomised on each reset, but always in a B3 tile.
+- Detection uses positive phrase matching on Polish inspection log messages rather than negative exclusion, which proved more robust against the wide variety of randomised "nobody here" messages.
+- Worst-case budget: ~170 action points out of the 300 allowed.
+
 ## Quick-run examples
 
 ```bash
@@ -629,6 +682,9 @@ bin/week_3/evaluation_11                    # Lesson 11: sensor anomaly detectio
 LLM_MODEL=anthropic/claude-sonnet-4-6 bin/week_3/firmware_12  # Lesson 12: VM firmware shell agent
 bin/week_3/reactor_13                       # Lesson 13: deterministic reactor solver
 bin/week_3/negotiations_14                  # Lesson 14: public negotiations tool server
+
+# Week 4
+bin/week_4/domatowo_18                      # Lesson 18: domatowo rescue mission
 ```
 
 ## Notes
@@ -645,6 +701,7 @@ bin/week_3/negotiations_14                  # Lesson 14: public negotiations too
 - `firmware` uses a Function Calling agent loop to drive a remote VM shell; the agent calls `execute_shell(cmd)` to explore the filesystem, find the password and fix `settings.ini`, then runs the cooler binary to obtain the `ECCS-` code and submits it via `submit_answer`.
 - `reactor` is fully deterministic: it parses the live board, simulates each block's 6-step motion cycle, plans a safe path with BFS over future phases, and executes the resulting `left` / `wait` / `right` sequence to reach column 7 without being crushed.
 - `negotiations` exposes a compact public HTTP tool over the `s03e04_csv` dataset; it fuzzy-matches natural-language item requests to exact catalog entries and returns the cities that sell one item or the cities common to multiple requested items, then polls the asynchronous verification flow with `action: "check"`.
+- `domatowo` is a tactical grid puzzle: transporters ferry scouts cheaply along roads, scouts walk the last mile to inspect B3 (tallest) blocks, and positive-phrase detection on Polish log messages identifies the partisan before calling the evacuation helicopter — no LLM needed.
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.
