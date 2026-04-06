@@ -155,6 +155,7 @@ module Services
           next unless wind >= w1 && wind <= w2
 
           return y1 if w1 == w2
+
           return y1 + (wind - w1) / (w2 - w1) * (y2 - y1)
         end
         0.0

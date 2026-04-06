@@ -76,7 +76,8 @@ module Services
           end
 
           creator = transport_users[idx % transport_users.size]
-          signature = generate_signature(login: creator['login'], birthday: creator['birthday'], destination: destination_code)
+          signature = generate_signature(login: creator['login'], birthday: creator['birthday'],
+                                         destination: destination_code)
           log "  dest=#{destination_code} creator=#{creator['login']} sig=#{signature[0..11]}..."
 
           create_result = api(
@@ -110,7 +111,8 @@ module Services
       end
 
       def generate_signature(login:, birthday:, destination:)
-        result = api(tool: 'signatureGenerator', action: 'generate', login: login, birthday: birthday, destination: destination)
+        result = api(tool: 'signatureGenerator', action: 'generate', login: login, birthday: birthday,
+                     destination: destination)
         result['hash']
       end
 

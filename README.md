@@ -35,6 +35,10 @@ Lesson mapping:
 - Lesson 18: `bin/week_4/domatowo_18` (`domatowo`) — **`{FLG:WEVEGOTHIM}`**
 - Lesson 19: `bin/week_4/filesystem_19` (`filesystem`) — **`{FLG:DEALWITHIT}`**
 
+### Week 5
+
+- Lesson 21: `bin/week_5/radiomonitoring_21` (`radiomonitoring`) — **`{FLG:GOODMORNINGZION}`**
+
 ## Lesson notes
 
 Source lesson markdowns are stored in `docs/lessons/` for quick reference:
@@ -55,6 +59,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 14 / `negotiations` / `bin/week_3/negotiations_14` → [`docs/lessons/lesson-14-negotiations.md`](docs/lessons/lesson-14-negotiations.md)
 - Lesson 18 / `domatowo` / `bin/week_4/domatowo_18` → [`docs/lessons/lesson-18-domatowo.md`](docs/lessons/lesson-18-domatowo.md)
 - Lesson 19 / `filesystem` / `bin/week_4/filesystem_19` → [`docs/lessons/lesson-19-filesystem.md`](docs/lessons/lesson-19-filesystem.md)
+- Lesson 21 / `radiomonitoring` / `bin/week_5/radiomonitoring_21` → [`docs/lessons/lesson-21-radiomonitoring.md`](docs/lessons/lesson-21-radiomonitoring.md)
 
 ## Structure
 
@@ -81,6 +86,8 @@ bin/
     windpower_17                  # Lesson 17: wind turbine config entrypoint
     domatowo_18                   # Lesson 18: domatowo rescue mission entrypoint
     filesystem_19                 # Lesson 19: filesystem knowledge base entrypoint
+  week_5/
+    radiomonitoring_21            # Lesson 21: radio signal interception entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -99,6 +106,7 @@ docs/
     lesson-14-negotiations.md     # lesson note / source material (week 3)
     lesson-18-domatowo.md         # lesson note / source material (week 4)
     lesson-19-filesystem.md       # lesson note / source material (week 4)
+    lesson-21-radiomonitoring.md  # lesson note / source material (week 5)
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -195,6 +203,12 @@ app/
       windpower_task.rb
       domatowo_task.rb
       filesystem_task.rb
+  s05/                            # Week 5
+    services/
+      radiomonitoring/
+        runner.rb                 # radio signal interception, decode, LLM analysis pipeline
+    tasks/
+      radiomonitoring_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -721,6 +735,9 @@ bin/week_3/negotiations_14                  # Lesson 14: public negotiations too
 # Week 4
 bin/week_4/domatowo_18                      # Lesson 18: domatowo rescue mission
 bin/week_4/filesystem_19                    # Lesson 19: filesystem knowledge base
+
+# Week 5
+bin/week_5/radiomonitoring_21               # Lesson 21: radio signal interception
 ```
 
 ## Notes

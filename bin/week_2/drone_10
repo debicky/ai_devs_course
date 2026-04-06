@@ -64,4 +64,3 @@ if result[:flag]
 else
   puts "Response: #{result[:response]}"
 end
-

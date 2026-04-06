@@ -7,43 +7,43 @@ module Services
 
       # Cities and what they NEED (from ogłoszenia.txt)
       CITY_NEEDS = {
-        'opalino'    => { 'chleb' => 45, 'woda' => 120, 'mlotek' => 6 },
-        'domatowo'   => { 'makaron' => 60, 'woda' => 150, 'lopata' => 8 },
-        'brudzewo'   => { 'ryz' => 55, 'woda' => 140, 'wiertarka' => 5 },
-        'darzlubie'  => { 'wolowina' => 25, 'woda' => 130, 'kilof' => 7 },
-        'celbowo'    => { 'kurczak' => 40, 'woda' => 125, 'mlotek' => 6 },
-        'mechowo'    => { 'ziemniak' => 100, 'kapusta' => 70, 'marchew' => 65, 'woda' => 165, 'lopata' => 9 },
-        'puck'       => { 'chleb' => 50, 'ryz' => 45, 'woda' => 175, 'wiertarka' => 7 },
+        'opalino' => { 'chleb' => 45, 'woda' => 120, 'mlotek' => 6 },
+        'domatowo' => { 'makaron' => 60, 'woda' => 150, 'lopata' => 8 },
+        'brudzewo' => { 'ryz' => 55, 'woda' => 140, 'wiertarka' => 5 },
+        'darzlubie' => { 'wolowina' => 25, 'woda' => 130, 'kilof' => 7 },
+        'celbowo' => { 'kurczak' => 40, 'woda' => 125, 'mlotek' => 6 },
+        'mechowo' => { 'ziemniak' => 100, 'kapusta' => 70, 'marchew' => 65, 'woda' => 165, 'lopata' => 9 },
+        'puck' => { 'chleb' => 50, 'ryz' => 45, 'woda' => 175, 'wiertarka' => 7 },
         'karlinkowo' => { 'makaron' => 52, 'wolowina' => 22, 'ziemniak' => 95, 'woda' => 155, 'kilof' => 6 }
       }.freeze
 
       # People responsible for trade in each city (from rozmowy.txt)
       PEOPLE = {
-        'natan_rams'    => { name: 'Natan Rams', city: 'domatowo' },
-        'iga_kapecka'   => { name: 'Iga Kapecka', city: 'opalino' },
-        'rafal_kisiel'  => { name: 'Rafal Kisiel', city: 'brudzewo' },
-        'marta_frantz'  => { name: 'Marta Frantz', city: 'darzlubie' },
-        'oskar_radtke'  => { name: 'Oskar Radtke', city: 'celbowo' },
+        'natan_rams' => { name: 'Natan Rams', city: 'domatowo' },
+        'iga_kapecka' => { name: 'Iga Kapecka', city: 'opalino' },
+        'rafal_kisiel' => { name: 'Rafal Kisiel', city: 'brudzewo' },
+        'marta_frantz' => { name: 'Marta Frantz', city: 'darzlubie' },
+        'oskar_radtke' => { name: 'Oskar Radtke', city: 'celbowo' },
         'eliza_redmann' => { name: 'Eliza Redmann', city: 'mechowo' },
-        'damian_kroll'  => { name: 'Damian Kroll', city: 'puck' },
-        'lena_konkel'   => { name: 'Lena Konkel', city: 'karlinkowo' }
+        'damian_kroll' => { name: 'Damian Kroll', city: 'puck' },
+        'lena_konkel' => { name: 'Lena Konkel', city: 'karlinkowo' }
       }.freeze
 
       # Goods for SALE and which cities sell them (from transakcje.txt)
       GOODS_FOR_SALE = {
-        'ryz'       => %w[darzlubie opalino karlinkowo],
-        'marchew'   => %w[puck],
-        'chleb'     => %w[domatowo celbowo brudzewo],
-        'wolowina'  => %w[opalino],
-        'kilof'     => %w[puck mechowo celbowo],
+        'ryz' => %w[darzlubie opalino karlinkowo],
+        'marchew' => %w[puck],
+        'chleb' => %w[domatowo celbowo brudzewo],
+        'wolowina' => %w[opalino],
+        'kilof' => %w[puck mechowo celbowo],
         'wiertarka' => %w[karlinkowo domatowo],
-        'maka'      => %w[brudzewo mechowo],
-        'mlotek'    => %w[karlinkowo mechowo],
-        'kapusta'   => %w[celbowo],
-        'ziemniak'  => %w[domatowo darzlubie],
-        'makaron'   => %w[opalino],
-        'lopata'    => %w[brudzewo puck],
-        'kurczak'   => %w[darzlubie]
+        'maka' => %w[brudzewo mechowo],
+        'mlotek' => %w[karlinkowo mechowo],
+        'kapusta' => %w[celbowo],
+        'ziemniak' => %w[domatowo darzlubie],
+        'makaron' => %w[opalino],
+        'lopata' => %w[brudzewo puck],
+        'kurczak' => %w[darzlubie]
       }.freeze
 
       def initialize(hub_client:, logger: $stdout)
