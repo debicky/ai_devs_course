@@ -24,3 +24,4 @@ puts
 puts "Commands: #{result.fetch(:commands).join(' ')}"
 puts "Verification: #{result.fetch(:verification).inspect}"
 puts "Flag: #{result.fetch(:flag)}"
+

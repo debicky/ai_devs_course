@@ -1,0 +1,106 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../../config/environment'
+
+def required_env!(name)
+  value = ENV[name].to_s.strip
+  return value unless value.empty?
+
+  raise ArgumentError, "Missing required environment variable: #{name}"
+end
+
+required_env!('AG3NTS_API_KEY')
+required_env!('OPENAI_API_KEY')
+
+http_client = Clients::HttpClient.new(open_timeout: 10, read_timeout: 180)
+hub_client  = Clients::HubClient.new(http_client: http_client)
+
+llm_client = Clients::LlmClient.new(
+  http_client: http_client,
+  api_key: ENV.fetch('OPENAI_API_KEY'),
+  model: ENV.fetch('LLM_MODEL', 'gpt-4o')
+)
+
+# TTS client — uses standard TTS API (tts-1-hd) for natural speech
+VOICES = %w[onyx echo alloy onyx echo alloy].freeze
+
+tts_client = Object.new
+tts_client.instance_variable_set(:@count, 0)
+tts_client.define_singleton_method(:synthesize) do |text|
+  voice = VOICES[@count % VOICES.size]
+  @count += 1
+  $stdout.puts "  [TTS] voice=#{voice} text=#{text[0..60]}"
+
+  uri = URI('https://api.openai.com/v1/audio/speech')
+
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  http.read_timeout = 60
+
+  request = Net::HTTP::Post.new(uri.path)
+  request['Authorization'] = "Bearer #{ENV.fetch('OPENAI_API_KEY')}"
+  request['Content-Type'] = 'application/json'
+  request.body = JSON.generate(
+    model: 'tts-1-hd',
+    input: text,
+    voice: voice,
+    response_format: 'mp3'
+  )
+
+  response = http.request(request)
+  raise "TTS failed (#{response.code}): #{response.body[0..200]}" unless response.is_a?(Net::HTTPSuccess)
+
+  response.body
+end
+
+# Whisper client — transcribes audio via OpenAI Whisper API
+whisper_client = Object.new
+whisper_client.define_singleton_method(:transcribe) do |file_path|
+  uri = URI('https://api.openai.com/v1/audio/transcriptions')
+  boundary = "----RubyFormBoundary#{SecureRandom.hex(16)}"
+
+  file_data = File.binread(file_path)
+  body = []
+  body << "--#{boundary}\r\n"
+  body << "Content-Disposition: form-data; name=\"file\"; filename=\"audio.mp3\"\r\n"
+  body << "Content-Type: audio/mpeg\r\n\r\n"
+  body << file_data
+  body << "\r\n--#{boundary}\r\n"
+  body << "Content-Disposition: form-data; name=\"model\"\r\n\r\n"
+  body << 'whisper-1'
+  body << "\r\n--#{boundary}\r\n"
+  body << "Content-Disposition: form-data; name=\"language\"\r\n\r\n"
+  body << 'pl'
+  body << "\r\n--#{boundary}--\r\n"
+
+  payload = body.join
+
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  http.read_timeout = 120
+
+  request = Net::HTTP::Post.new(uri.path)
+  request['Authorization'] = "Bearer #{ENV.fetch('OPENAI_API_KEY')}"
+  request['Content-Type'] = "multipart/form-data; boundary=#{boundary}"
+  request.body = payload
+
+  response = http.request(request)
+  result = JSON.parse(response.body)
+  result['text'] || result.to_s
+end
+
+runner = Services::Phonecall::Runner.new(
+  hub_client: hub_client,
+  tts_client: tts_client,
+  whisper_client: whisper_client,
+  llm_client: llm_client
+)
+task = Tasks::PhonecallTask.new(runner: runner)
+
+puts '-> Running phonecall task...'
+puts
+result = task.call
+
+puts
+puts "Flag: #{result[:flag]}"

@@ -38,6 +38,7 @@ Lesson mapping:
 ### Week 5
 
 - Lesson 21: `bin/week_5/radiomonitoring_21` (`radiomonitoring`) — **`{FLG:GOODMORNINGZION}`**
+- Lesson 22: `bin/week_5/phonecall_22` (`phonecall`)
 
 ## Lesson notes
 
@@ -60,6 +61,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 18 / `domatowo` / `bin/week_4/domatowo_18` → [`docs/lessons/lesson-18-domatowo.md`](docs/lessons/lesson-18-domatowo.md)
 - Lesson 19 / `filesystem` / `bin/week_4/filesystem_19` → [`docs/lessons/lesson-19-filesystem.md`](docs/lessons/lesson-19-filesystem.md)
 - Lesson 21 / `radiomonitoring` / `bin/week_5/radiomonitoring_21` → [`docs/lessons/lesson-21-radiomonitoring.md`](docs/lessons/lesson-21-radiomonitoring.md)
+- Lesson 22 / `phonecall` / `bin/week_5/phonecall_22` → [`docs/lessons/lesson-22-phonecall.md`](docs/lessons/lesson-22-phonecall.md)
 
 ## Structure
 
@@ -88,6 +90,7 @@ bin/
     filesystem_19                 # Lesson 19: filesystem knowledge base entrypoint
   week_5/
     radiomonitoring_21            # Lesson 21: radio signal interception entrypoint
+    phonecall_22                  # Lesson 22: operator phone call entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -107,6 +110,7 @@ docs/
     lesson-18-domatowo.md         # lesson note / source material (week 4)
     lesson-19-filesystem.md       # lesson note / source material (week 4)
     lesson-21-radiomonitoring.md  # lesson note / source material (week 5)
+    lesson-22-phonecall.md        # lesson note / source material (week 5)
 config/
   environment.rb                  # bootstrap and require order
 app/
@@ -207,8 +211,11 @@ app/
     services/
       radiomonitoring/
         runner.rb                 # radio signal interception, decode, LLM analysis pipeline
+      phonecall/
+        runner.rb                 # operator phone call via TTS/Whisper audio loop
     tasks/
       radiomonitoring_task.rb
+      phonecall_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -738,6 +745,7 @@ bin/week_4/filesystem_19                    # Lesson 19: filesystem knowledge ba
 
 # Week 5
 bin/week_5/radiomonitoring_21               # Lesson 21: radio signal interception
+bin/week_5/phonecall_22                     # Lesson 22: operator phone call
 ```
 
 ## Notes
@@ -756,6 +764,7 @@ bin/week_5/radiomonitoring_21               # Lesson 21: radio signal intercepti
 - `negotiations` exposes a compact public HTTP tool over the `s03e04_csv` dataset; it fuzzy-matches natural-language item requests to exact catalog entries and returns the cities that sell one item or the cities common to multiple requested items, then polls the asynchronous verification flow with `action: "check"`.
 - `filesystem` parses three text files from Natan's notes (city needs, trade contacts, transaction history) and builds a virtual filesystem with `/miasta/`, `/osoby/`, and `/towary/` directories in a single batch API call — no LLM needed.
 - `domatowo` is a tactical grid puzzle: transporters ferry scouts cheaply along roads, scouts walk the last mile to inspect B3 (tallest) blocks, and positive-phrase detection on Polish log messages identifies the partisan before calling the evacuation helicopter — no LLM needed.
+- `phonecall` conducts a multi-step audio phone call with a system operator: generates Polish speech via OpenAI TTS, sends base64-encoded MP3 audio, transcribes operator responses with Whisper, and follows a scripted conversation to identify a safe road and disable its monitoring — uses an LLM fallback for dynamic follow-ups.
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.

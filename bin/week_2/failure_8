@@ -34,3 +34,4 @@ puts 'Submitted logs:'
 puts result.fetch(:logs)
 puts
 puts "Flag: #{result.fetch(:flag)}"
+

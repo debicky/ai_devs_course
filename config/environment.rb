@@ -113,6 +113,8 @@ require_relative '../app/s04/tasks/foodwarehouse_task'
 
 # S05 — Week 5 Services
 require_relative '../app/s05/services/radiomonitoring/runner'
+require_relative '../app/s05/services/phonecall/runner'
 
 # S05 — Week 5 Tasks
 require_relative '../app/s05/tasks/radiomonitoring_task'
+require_relative '../app/s05/tasks/phonecall_task'

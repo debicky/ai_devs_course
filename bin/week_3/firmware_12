@@ -48,3 +48,4 @@ result = task.call
 puts
 puts "Confirmation code: #{result[:confirmation]}"
 puts "Verification:      #{result[:verification].inspect}"
+

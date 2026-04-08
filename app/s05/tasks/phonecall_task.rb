@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Tasks
-  class FirmwareTask
+  class PhonecallTask
     def initialize(runner:)
       @runner = runner
     end
@@ -11,4 +11,3 @@ module Tasks
     end
   end
 end
-
