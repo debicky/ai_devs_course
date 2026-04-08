@@ -114,7 +114,10 @@ require_relative '../app/s04/tasks/foodwarehouse_task'
 # S05 — Week 5 Services
 require_relative '../app/s05/services/radiomonitoring/runner'
 require_relative '../app/s05/services/phonecall/runner'
+require_relative '../app/s05/services/shellaccess/tool_executor'
+require_relative '../app/s05/services/shellaccess/runner'
 
 # S05 — Week 5 Tasks
 require_relative '../app/s05/tasks/radiomonitoring_task'
 require_relative '../app/s05/tasks/phonecall_task'
+require_relative '../app/s05/tasks/shellaccess_task'

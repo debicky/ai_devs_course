@@ -121,6 +121,7 @@ module Clients
         JSON.parse(response.body)
       rescue Clients::HttpError => e
         raise unless e.code == '429' && retries < MAX_RETRIES
+        raise if e.body.to_s.include?('insufficient_quota')
 
         delay = retry_delay(e.message)
         warn "Rate limited. Retrying in #{delay}s... (attempt #{retries + 1}/#{MAX_RETRIES})"

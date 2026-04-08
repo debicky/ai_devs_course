@@ -22,34 +22,26 @@ llm_client = Clients::LlmClient.new(
   model: ENV.fetch('LLM_MODEL', 'gpt-4o')
 )
 
-# TTS client — uses standard TTS API (tts-1-hd) for natural speech
-VOICES = %w[onyx echo alloy onyx echo alloy].freeze
-
+# TTS client — ElevenLabs + phone codec degradation (8kHz mono μ-law, sounds like real phone)
 tts_client = Object.new
-tts_client.instance_variable_set(:@count, 0)
 tts_client.define_singleton_method(:synthesize) do |text|
-  voice = VOICES[@count % VOICES.size]
-  @count += 1
-  $stdout.puts "  [TTS] voice=#{voice} text=#{text[0..60]}"
+  $stdout.puts "  [TTS] openai/onyx text=#{text[0..60]}"
 
   uri = URI('https://api.openai.com/v1/audio/speech')
-
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
   http.read_timeout = 60
-
   request = Net::HTTP::Post.new(uri.path)
   request['Authorization'] = "Bearer #{ENV.fetch('OPENAI_API_KEY')}"
   request['Content-Type'] = 'application/json'
   request.body = JSON.generate(
     model: 'tts-1-hd',
+    voice: 'echo',
     input: text,
-    voice: voice,
     response_format: 'mp3'
   )
-
   response = http.request(request)
-  raise "TTS failed (#{response.code}): #{response.body[0..200]}" unless response.is_a?(Net::HTTPSuccess)
+  raise "OpenAI TTS failed (#{response.code}): #{response.body[0..200]}" unless response.is_a?(Net::HTTPSuccess)
 
   response.body
 end

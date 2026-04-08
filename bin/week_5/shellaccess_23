@@ -12,12 +12,11 @@ end
 
 required_env!('AG3NTS_API_KEY')
 
-# Vision model for map analysis — needs image support (gpt-4o).
-# Text model for instruction fixing — cheaper model is fine.
-vision_model = ENV.fetch('VISION_MODEL', 'gpt-4o')
-llm_model    = ENV.fetch('LLM_MODEL',    'gpt-4o-mini')
+# gpt-4o recommended — needs reasoning for awk commands and data extraction
+DEFAULT_MODEL = 'gpt-4o'
+model = ENV.fetch('LLM_MODEL', DEFAULT_MODEL)
 
-http_client = Clients::HttpClient.new(open_timeout: 30, read_timeout: 120)
+http_client = Clients::HttpClient.new(open_timeout: 30, read_timeout: 60)
 hub_client  = Clients::HubClient.new(http_client: http_client)
 
 openrouter_key = ENV['OPENROUTER_API_KEY'].to_s.strip
@@ -32,35 +31,24 @@ llm_api_key, llm_base_url =
     raise ArgumentError, 'Either OPENROUTER_API_KEY or OPENAI_API_KEY is required'
   end
 
-vision_client = Clients::LlmClient.new(
-  http_client: http_client,
-  api_key: llm_api_key,
-  model: vision_model,
-  base_url: llm_base_url
-)
-
 llm_client = Clients::LlmClient.new(
   http_client: http_client,
   api_key: llm_api_key,
-  model: llm_model,
+  model: model,
   base_url: llm_base_url
 )
 
-runner = Services::Drone::Runner.new(
-  vision_client: vision_client,
-  llm_client: llm_client,
-  hub_client: hub_client
-)
-task = Tasks::DroneTask.new(runner: runner)
+tool_executor = Services::Shellaccess::ToolExecutor.new(hub_client: hub_client)
+runner        = Services::Shellaccess::Runner.new(llm_client: llm_client, tool_executor: tool_executor)
+task          = Tasks::ShellAccessTask.new(runner: runner)
 
-puts "→ Running drone task (vision: #{vision_model}, text: #{llm_model})..."
+puts "→ Running shellaccess task (model: #{model})..."
+puts '→ Exploring remote server to find Rafał...'
+puts
+
 result = task.call
 
 puts
-puts "Instructions used: #{result[:instructions].inspect}"
-puts
-if result[:flag]
-  puts "Flag: #{result[:flag]}"
-else
-  puts "Response: #{result[:response]}"
-end
+puts '=== RESULT ==='
+puts "Flag: #{result[:flag]}"
+puts "Solved in iteration: #{result[:iteration]}"

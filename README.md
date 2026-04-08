@@ -39,6 +39,7 @@ Lesson mapping:
 
 - Lesson 21: `bin/week_5/radiomonitoring_21` (`radiomonitoring`) — **`{FLG:GOODMORNINGZION}`**
 - Lesson 22: `bin/week_5/phonecall_22` (`phonecall`)
+- Lesson 23: `bin/week_5/shellaccess_23` (`shellaccess`) — **`{FLG:HUGEFILE}`**
 
 ## Lesson notes
 
@@ -62,6 +63,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 19 / `filesystem` / `bin/week_4/filesystem_19` → [`docs/lessons/lesson-19-filesystem.md`](docs/lessons/lesson-19-filesystem.md)
 - Lesson 21 / `radiomonitoring` / `bin/week_5/radiomonitoring_21` → [`docs/lessons/lesson-21-radiomonitoring.md`](docs/lessons/lesson-21-radiomonitoring.md)
 - Lesson 22 / `phonecall` / `bin/week_5/phonecall_22` → [`docs/lessons/lesson-22-phonecall.md`](docs/lessons/lesson-22-phonecall.md)
+- Lesson 23 / `shellaccess` / `bin/week_5/shellaccess_23` → [`docs/lessons/lesson-23-shellaccess.md`](docs/lessons/lesson-23-shellaccess.md)
 
 ## Structure
 
@@ -91,6 +93,7 @@ bin/
   week_5/
     radiomonitoring_21            # Lesson 21: radio signal interception entrypoint
     phonecall_22                  # Lesson 22: operator phone call entrypoint
+    shellaccess_23                # Lesson 23: remote shell exploration agent entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -213,9 +216,13 @@ app/
         runner.rb                 # radio signal interception, decode, LLM analysis pipeline
       phonecall/
         runner.rb                 # operator phone call via TTS/Whisper audio loop
+      shellaccess/
+        tool_executor.rb          # execute shell commands via Hub verify endpoint
+        runner.rb                 # function-calling agent loop for remote server exploration
     tasks/
       radiomonitoring_task.rb
       phonecall_task.rb
+      shellaccess_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored

@@ -26,4 +26,3 @@ puts
 puts "Answer:       #{result[:answer].inspect}"
 puts "Verification: #{result[:verification].inspect}"
 puts "Flag:         #{result[:flag]}"
-
