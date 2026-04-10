@@ -39,8 +39,6 @@ Lesson mapping:
 
 - Lesson 21: `bin/week_5/radiomonitoring_21` (`radiomonitoring`) — **`{FLG:GOODMORNINGZION}`**
 - Lesson 22: `bin/week_5/phonecall_22` (`phonecall`)
-- Lesson 23: `bin/week_5/shellaccess_23` (`shellaccess`) — **`{FLG:HUGEFILE}`**
-- Lesson 24: `bin/week_5/goingthere_24` (`goingthere`) — **`{FLG:FINALDESTINATION}`**
 
 ## Lesson notes
 
@@ -65,13 +63,6 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 21 / `radiomonitoring` / `bin/week_5/radiomonitoring_21` → [`docs/lessons/lesson-21-radiomonitoring.md`](docs/lessons/lesson-21-radiomonitoring.md)
 - Lesson 22 / `phonecall` / `bin/week_5/phonecall_22` → [`docs/lessons/lesson-22-phonecall.md`](docs/lessons/lesson-22-phonecall.md)
 - Lesson 23 / `shellaccess` / `bin/week_5/shellaccess_23` → [`docs/lessons/lesson-23-shellaccess.md`](docs/lessons/lesson-23-shellaccess.md)
-- Lesson 24 / `goingthere` / `bin/week_5/goingthere_24` → [`docs/lessons/lesson-24-goingthere.md`](docs/lessons/lesson-24-goingthere.md)
-
-## Structure
-
-```text
-bin/
-  week_1/
     run_1                         # Lesson 1: people task entrypoint
     find_him_2                    # Lesson 2: findhim task entrypoint
     proxy_3                       # Lesson 3: proxy HTTP server entrypoint
@@ -102,17 +93,15 @@ docs/
     lesson-01-people.md           # lesson note / source material
     lesson-02-find-him.md         # lesson note / source material
     lesson-03-proxy.md            # lesson note / source material
-    lesson-04-sendit.md           # lesson note / source material
     lesson-05-railway.md          # lesson note / source material
     lesson-06-categorize.md       # lesson note / source material (week 2)
     lesson-23-shellaccess.md      # lesson note / source material (week 5)
     lesson-24-goingthere.md       # lesson note / source material (week 5)
+    lesson-25-timetravel.md       # lesson note / source material (week 5)
     lesson-08-failure.md          # lesson note / source material (week 2)
-    lesson-09-mailbox.md          # lesson note / source material (week 2)
     lesson-10-drone.md            # lesson note / source material (week 2)
     lesson-11-evaluation.md       # lesson note / source material (week 3)
-    lesson-12-firmware.md         # lesson note / source material (week 3)
-    lesson-13-reactor.md          # lesson note / source material (week 3)
+    lesson-07-electricity.md      # lesson note / source material (week 2)
     lesson-14-negotiations.md     # lesson note / source material (week 3)
     lesson-18-domatowo.md         # lesson note / source material (week 4)
     lesson-19-filesystem.md       # lesson note / source material (week 4)
@@ -239,16 +228,6 @@ data/
 
 ## Environment variables
 
-`.env` should contain secrets only:
-
-```bash
-AG3NTS_API_KEY=your_ag3nts_key
-OPENAI_API_KEY=your_openai_key
-# optional for other flows
-GEMINI_API_KEY=your_gemini_key
-```
-
-Model selection stays in each run file. You can override it temporarily with `LLM_MODEL`.
 
 ### Which script uses which keys?
 
@@ -262,7 +241,6 @@ Model selection stays in each run file. You can override it temporarily with `LL
 - `bin/week_1/proxy_3`
   - requires `AG3NTS_API_KEY`
   - requires `OPENAI_API_KEY`
-  - optional `PORT` (default `3000`)
 - `bin/week_1/sendit_4`
   - requires `AG3NTS_API_KEY`
   - requires `OPENAI_API_KEY`
@@ -271,11 +249,6 @@ Model selection stays in each run file. You can override it temporarily with `LL
 - `bin/week_2/categorize_6`
   - requires `AG3NTS_API_KEY`
 - `bin/week_2/electricity_7`
-  - requires `AG3NTS_API_KEY`
-  - requires `magick` (ImageMagick 7) on PATH
-- `bin/week_2/failure_8`
-  - requires `AG3NTS_API_KEY`
-- `bin/week_3/evaluation_11`
   - requires `AG3NTS_API_KEY`
   - requires `OPENAI_API_KEY` or `OPENROUTER_API_KEY`
 - `bin/week_3/firmware_12`
@@ -294,7 +267,6 @@ Model selection stays in each run file. You can override it temporarily with `LL
 
 This is the first task / lesson.
 
-What `bin/week_1/run_1` does:
 
 1. downloads `people.csv`
 2. parses and filters the records
@@ -324,8 +296,6 @@ This is the second task / lesson.
 `bin/week_1/find_him_2` uses the suspects saved by `bin/week_1/run_1` in `data/suspects.json` and then:
 
 1. loads suspects from `data/suspects.json`
-2. checks where each suspect was seen
-3. finds which suspect was seen closest to a nuclear power plant
 4. fetches that person's access level
 5. submits the final answer to `/verify`
 
@@ -748,48 +718,6 @@ What `bin/week_5/goingthere_24` does:
 7. Executes the move command via `/verify` with `task: "goingthere"`.
 8. Repeats steps 2–7 until reaching column 12 or crashing. On crash, restarts automatically (up to 5 attempts).
 
-```bash
-chmod +x bin/week_5/goingthere_24
-bin/week_5/goingthere_24
-```
-
-Notes:
-- The frequency scanner and radio hint APIs are intentionally unreliable — responses may be garbled or return random errors. Both scanner and hint fetchers have automatic retry logic.
-- Scanner response parsing uses both direct JSON parse and regex fallback to handle corrupted payloads.
-- The LLM only interprets short English radio hints (cheap, fast — `gpt-4o-mini` is sufficient).
-- All game state changes (position, direction) are tracked locally; the API only returns the result of each move.
-- The game has no undo — a crash means full restart.
-
-## Quick-run examples
-
-```bash
-bundle install
-
-# Week 1
-bin/week_1/run_1           # Lesson 1: people
-bin/week_1/find_him_2      # Lesson 2: findhim
-bin/week_1/proxy_3         # Lesson 3: proxy server
-bin/week_1/sendit_4        # Lesson 4: sendit
-bin/week_1/railway_5       # Lesson 5: railway
-
-# Week 2
-bin/week_2/categorize_6    # Lesson 6: categorize
-bin/week_2/electricity_7   # Lesson 7: electricity
-bin/week_2/failure_8       # Lesson 8: failure
-LLM_MODEL=gpt-4o-mini bin/week_2/mailbox_9  # Lesson 9: mailbox
-bin/week_2/drone_10                         # Lesson 10: drone (uses gpt-4o for vision)
-
-# Week 3
-bin/week_3/evaluation_11                    # Lesson 11: sensor anomaly detection
-LLM_MODEL=anthropic/claude-sonnet-4-6 bin/week_3/firmware_12  # Lesson 12: VM firmware shell agent
-bin/week_3/reactor_13                       # Lesson 13: deterministic reactor solver
-bin/week_3/negotiations_14                  # Lesson 14: public negotiations tool server
-
-# Week 4
-bin/week_4/domatowo_18                      # Lesson 18: domatowo rescue mission
-bin/week_4/filesystem_19                    # Lesson 19: filesystem knowledge base
-
-# Week 5
 bin/week_5/radiomonitoring_21               # Lesson 21: radio signal interception
 bin/week_5/phonecall_22                     # Lesson 22: operator phone call
 bin/week_5/goingthere_24                    # Lesson 24: rocket navigation to Grudziądz
@@ -810,7 +738,6 @@ bin/week_5/goingthere_24                    # Lesson 24: rocket navigation to Gr
 - `reactor` is fully deterministic: it parses the live board, simulates each block's 6-step motion cycle, plans a safe path with BFS over future phases, and executes the resulting `left` / `wait` / `right` sequence to reach column 7 without being crushed.
 - `negotiations` exposes a compact public HTTP tool over the `s03e04_csv` dataset; it fuzzy-matches natural-language item requests to exact catalog entries and returns the cities that sell one item or the cities common to multiple requested items, then polls the asynchronous verification flow with `action: "check"`.
 - `filesystem` parses three text files from Natan's notes (city needs, trade contacts, transaction history) and builds a virtual filesystem with `/miasta/`, `/osoby/`, and `/towary/` directories in a single batch API call — no LLM needed.
-- `domatowo` is a tactical grid puzzle: transporters ferry scouts cheaply along roads, scouts walk the last mile to inspect B3 (tallest) blocks, and positive-phrase detection on Polish log messages identifies the partisan before calling the evacuation helicopter — no LLM needed.
 - `phonecall` conducts a multi-step audio phone call with a system operator: generates Polish speech via OpenAI TTS, sends base64-encoded MP3 audio, transcribes operator responses with Whisper, and follows a scripted conversation to identify a safe road and disable its monitoring — uses an LLM fallback for dynamic follow-ups.
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.

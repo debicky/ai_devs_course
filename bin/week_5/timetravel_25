@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../../config/environment'
+
+$stdout.sync = true
+
+puts '→ Lesson 25: timetravel'
+puts '→ Fully automated CHRONOS-P1: 3 jumps to open tunnel to 2024-11-12'
+puts
+
+api_key = ENV.fetch('AG3NTS_API_KEY')
+
+http_client = Clients::HttpClient.new(open_timeout: 15, read_timeout: 30)
+hub_client  = Clients::HubClient.new(http_client: http_client)
+
+sync_calculator = Services::Timetravel::SyncRatioCalculator.new
+pwr_table       = Services::Timetravel::PwrTable.new
+
+runner = Services::Timetravel::Runner.new(
+  hub_client: hub_client,
+  http_client: http_client,
+  sync_calculator: sync_calculator,
+  pwr_table: pwr_table,
+  api_key: api_key
+)
+
+task = Tasks::TimetravelTask.new(runner: runner)
+
+result = task.call
+
+puts
+puts '=== RESULT ==='
+if result[:flag]
+  puts "Flag: #{result[:flag]}"
+else
+  puts 'No flag obtained.'
+end
