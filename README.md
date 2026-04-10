@@ -38,7 +38,10 @@ Lesson mapping:
 ### Week 5
 
 - Lesson 21: `bin/week_5/radiomonitoring_21` (`radiomonitoring`) — **`{FLG:GOODMORNINGZION}`**
-- Lesson 22: `bin/week_5/phonecall_22` (`phonecall`)
+- Lesson 22: `bin/week_5/phonecall_22` (`phonecall`) — **`{FLG:CANYOUHEARME}`**
+- Lesson 23: `bin/week_5/shellaccess_23` (`shellaccess`)
+- Lesson 24: `bin/week_5/goingthere_24` (`goingthere`) — **`{FLG:FINALDESTINATION}`**
+- Lesson 25: `bin/week_5/timetravel_25` (`timetravel`) — **`{FLG:FIXTHEWORLD}`**
 
 ## Lesson notes
 
@@ -63,6 +66,8 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 21 / `radiomonitoring` / `bin/week_5/radiomonitoring_21` → [`docs/lessons/lesson-21-radiomonitoring.md`](docs/lessons/lesson-21-radiomonitoring.md)
 - Lesson 22 / `phonecall` / `bin/week_5/phonecall_22` → [`docs/lessons/lesson-22-phonecall.md`](docs/lessons/lesson-22-phonecall.md)
 - Lesson 23 / `shellaccess` / `bin/week_5/shellaccess_23` → [`docs/lessons/lesson-23-shellaccess.md`](docs/lessons/lesson-23-shellaccess.md)
+- Lesson 24 / `goingthere` / `bin/week_5/goingthere_24` → [`docs/lessons/lesson-24-goingthere.md`](docs/lessons/lesson-24-goingthere.md)
+- Lesson 25 / `timetravel` / `bin/week_5/timetravel_25` → [`docs/lessons/lesson-25-timetravel.md`](docs/lessons/lesson-25-timetravel.md)
     run_1                         # Lesson 1: people task entrypoint
     find_him_2                    # Lesson 2: findhim task entrypoint
     proxy_3                       # Lesson 3: proxy HTTP server entrypoint
@@ -88,6 +93,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
     phonecall_22                  # Lesson 22: operator phone call entrypoint
     shellaccess_23                # Lesson 23: remote shell exploration agent entrypoint
     goingthere_24                 # Lesson 24: rocket navigation to Grudziądz entrypoint
+    timetravel_25                 # Lesson 25: time machine automation entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -721,7 +727,71 @@ What `bin/week_5/goingthere_24` does:
 bin/week_5/radiomonitoring_21               # Lesson 21: radio signal interception
 bin/week_5/phonecall_22                     # Lesson 22: operator phone call
 bin/week_5/goingthere_24                    # Lesson 24: rocket navigation to Grudziądz
+bin/week_5/timetravel_25                    # Lesson 25: time machine automation
 ```
+
+## Lesson 22 / Task 22: `phonecall` (`bin/week_5/phonecall_22`)
+
+**Flag: `{FLG:CANYOUHEARME}`**
+
+Conduct a multi-step audio phone call with a road monitoring operator to discover which road is passable and disable monitoring on it.
+
+What `bin/week_5/phonecall_22` does:
+
+1. Starts a phone call session via `action: "start"`.
+2. **Step 1** — Introduces as Tymon Gajewski (short greeting).
+3. **Step 2** — Asks about roads RD-224, RD-472, RD-820 *while mentioning the food transport to Siegfried's secret base* as justification. Operator responds with which roads are blocked.
+4. Extracts the safe road from the operator's reply (regex + elimination logic).
+5. **Step 3** — Asks to disable monitoring on the safe road. Includes password BARBAKAN, explains the food transport context, and why it can't appear in logs (base location is classified). Uses natural, conversational Polish phrasing — this is the critical part.
+6. Handles follow-ups dynamically: gives password when asked, explains justification when challenged, uses LLM fallback for unexpected responses.
+
+Key lessons learned:
+
+- **Content over voice quality:** The "strange speech" error (`-790`/`-800`/`-810`) is triggered by the validator LLM judging the *meaning* of what's said, not the audio quality. A message like "Muszę prosić o wyłączenie monitoringu" sounds like a bot reading a script. "Dobra, to jeszcze jedno… Widzisz, ten transport żywności do bazy Zygfryda to tajna operacja…" reads like a real human explaining their situation.
+- **Nondeterministic validation:** The same audio can pass or fail on different attempts. Audio cache must NEVER be invalidated on speech warnings — only on burned sessions.
+- **Disk-persisted audio cache:** All synthesized MP3s are saved to `data/phonecall_cache/` (keyed by SHA256 of the text). This means TTS is called only once per unique message — across all attempts AND across runs. Inspectable with `open data/phonecall_cache/*.mp3`.
+- **TTS fallback chain:** ElevenLabs (multilingual_v2, Daniel voice) → OpenAI (`gpt-4o-mini-tts`, ash voice) on quota/key issues. All audio is re-encoded through ffmpeg to mono 24kHz MP3 with bandpass filter.
+
+```bash
+chmod +x bin/week_5/phonecall_22
+bin/week_5/phonecall_22
+```
+
+## Lesson 25 / Task 25: `timetravel` (`bin/week_5/timetravel_25`)
+
+**Flag: `{FLG:FIXTHEWORLD}`**
+
+Navigate the CHRONOS-P1 time machine through three jumps to open a temporal tunnel to 2024-11-12.
+
+What `bin/week_5/timetravel_25` does:
+
+1. Resets the device via the `/verify` API.
+2. For each of the three jumps, configures the device automatically:
+   - Sets PT-A, PT-B, and PWR via `POST /timetravel_backend` (web UI backend).
+   - Configures day, month, year, and syncRatio via `/verify` API (only works in standby mode).
+   - Reads the Polish-language `needConfig` stabilization hint from `getConfig`, parses compound Polish number words (e.g. "dziewięćset" = 900, "siedemset jedenaście" = 711), detects add/subtract keywords, and computes the stabilization value.
+   - Configures the stabilization value via API.
+   - Verifies that `fluxDensity` reaches 100%.
+   - Switches to active mode via the web backend.
+   - Polls `internalMode` until it matches the required phase for the target year.
+   - Executes `timeTravel` action via `/verify`.
+3. Jump plan:
+   - **Jump 1** → 2238-11-05 (future, PT-B only): pick up new batteries (battery goes from 1/3 to 3/3).
+   - **Jump 2** → 2026-04-10 (past, PT-A only): return to present.
+   - **Jump 3** → 2024-11-12 (tunnel, PT-A + PT-B): open temporal tunnel to meet Rafał.
+
+```bash
+chmod +x bin/week_5/timetravel_25
+bin/week_5/timetravel_25
+```
+
+Notes:
+- No LLM is needed. The solver is fully deterministic.
+- The stabilization hint is in Polish prose; a token-based number extractor splits the text on whitespace, greedily groups consecutive Polish number words into compound values, and also captures digit numbers.
+- The `syncRatio` formula from the docs: `((day * 8) + (month * 12) + (year * 7)) % 101`, expressed as `0.00`–`1.00`.
+- The `PWR` protection level is looked up from a 1000-entry table (years 1500–2499).
+- `internalMode` cycles automatically every few seconds through modes 1–4; the runner polls until the correct mode appears before executing the jump.
+- The web backend accepts `{ apikey, PTA, PTB, PWR, mode }` via POST, avoiding manual UI interaction.
 
 ## Notes
 
@@ -738,9 +808,10 @@ bin/week_5/goingthere_24                    # Lesson 24: rocket navigation to Gr
 - `reactor` is fully deterministic: it parses the live board, simulates each block's 6-step motion cycle, plans a safe path with BFS over future phases, and executes the resulting `left` / `wait` / `right` sequence to reach column 7 without being crushed.
 - `negotiations` exposes a compact public HTTP tool over the `s03e04_csv` dataset; it fuzzy-matches natural-language item requests to exact catalog entries and returns the cities that sell one item or the cities common to multiple requested items, then polls the asynchronous verification flow with `action: "check"`.
 - `filesystem` parses three text files from Natan's notes (city needs, trade contacts, transaction history) and builds a virtual filesystem with `/miasta/`, `/osoby/`, and `/towary/` directories in a single batch API call — no LLM needed.
-- `phonecall` conducts a multi-step audio phone call with a system operator: generates Polish speech via OpenAI TTS, sends base64-encoded MP3 audio, transcribes operator responses with Whisper, and follows a scripted conversation to identify a safe road and disable its monitoring — uses an LLM fallback for dynamic follow-ups.
+- `phonecall` conducts a multi-step audio phone call with a road monitoring operator. The critical insight: the validator is an **LLM checking the content of what's said**, not the audio quality. The `-790`/`-800` "strange speech" error means the message text lacks convincing justification, not that the voice sounds robotic. **What matters:** (1) always mention the food transport to Siegfried's secret base as justification, (2) explain *why* monitoring must be off (base location can't leak, can't be in logs), (3) use natural, conversational Polish ("Dobra, to jeszcze jedno…" not "Muszę prosić o…"). **Architecture:** ElevenLabs TTS with automatic OpenAI `gpt-4o-mini-tts` fallback, ffmpeg mono re-encode, disk-persisted audio cache (`data/phonecall_cache/`) so TTS is called only once per unique message text across all attempts and runs, Whisper STT for operator responses, and text-variant retry on speech warnings (validator is nondeterministic — same audio may pass or fail).
 - `bin/week_1/run_1` already saves `data/suspects.json`, so `find_him` can reuse the previous task output directly.
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.
 - `proxy` keeps per-session history in `data/proxy_sessions/`, which is ignored by git.
 - `goingthere` navigates a 3×12 grid rocket game: checks the OKO radar scanner and disarms traps (SHA1 hash), interprets garbled radio navigation hints via LLM to determine rock position, and moves one column at a time — scanner parsing uses aggressive regex to extract frequency and detection code from heavily garbled JSON (keys like `betecti0nC0be`), hints are sometimes unreliable so the dodge direction alternates between left/right across attempts, and the runner retries up to 50 games to get a lucky complete run.
+- `timetravel` is fully automated: it controls both the `/verify` API (date, syncRatio, stabilization) and the web backend (`/timetravel_backend` for PT-A, PT-B, PWR, mode) to execute 3 time jumps. The Polish-language stabilization hints are parsed with a token-based number extractor, add/subtract keywords are detected, and the runner polls `internalMode` until the correct phase is reached before triggering each jump. No LLM is needed.

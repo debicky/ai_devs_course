@@ -12,7 +12,13 @@ end
 
 required_env!('AG3NTS_API_KEY')
 required_env!('OPENAI_API_KEY')
-required_env!('ELEVENLABS_API_KEY')
+# ELEVENLABS_API_KEY is optional — falls back to OpenAI TTS
+
+$stdout.sync = true
+
+puts '→ Lesson 22: phonecall'
+puts '→ Phone call to road monitoring operator'
+puts
 
 http_client = Clients::HttpClient.new(open_timeout: 30, read_timeout: 180)
 hub_client  = Clients::HubClient.new(http_client: http_client)
@@ -23,67 +29,81 @@ llm_client = Clients::LlmClient.new(
   model: ENV.fetch('LLM_MODEL', 'gpt-4o')
 )
 
-# TTS client — ElevenLabs (much more natural than OpenAI TTS)
+# ── TTS client (ElevenLabs) ──────────────────────────────────────────────
+
 tts_client = Object.new
 
-# Re-encode audio through ffmpeg to strip TTS metadata and change codec fingerprint
+# Re-encode through ffmpeg → mono MP3, strip TTS metadata
 tts_client.define_singleton_method(:reencode) do |audio_bytes|
   require 'tmpdir'
   Dir.mktmpdir('phonecall') do |dir|
     inp = File.join(dir, 'in.mp3')
-    wav = File.join(dir, 'mid.wav')
     out = File.join(dir, 'out.mp3')
     File.binwrite(inp, audio_bytes)
-
-    # MP3 → WAV (strips all MP3 metadata)
-    system('ffmpeg', '-y', '-i', inp, wav, out: File::NULL, err: File::NULL) or raise 'ffmpeg wav failed'
-    # WAV → MP3 with standard libmp3lame encoder, slight processing
-    hp = rand(200..350)
-    lp = rand(3200..3800)
-    system('ffmpeg', '-y', '-i', wav,
-           '-af', "highpass=f=#{hp},lowpass=f=#{lp},volume=#{(0.85 + rand * 0.1).round(2)}",
-           '-ac', '1', '-b:a', '96k', out,
-           out: File::NULL, err: File::NULL) or raise 'ffmpeg mp3 failed'
+    system('ffmpeg', '-y', '-i', inp,
+           '-ac', '1', '-ar', '24000', '-b:a', '96k',
+           '-af', 'highpass=f=200,lowpass=f=3400',
+           out, out: File::NULL, err: File::NULL) or raise 'ffmpeg failed'
     File.binread(out)
   end
 end
 
-tts_client.define_singleton_method(:synthesize) do |text, voice: 'pNInz6obpgDQGcFmaJgB', reencode_audio: false|
-  # Voices: Adam=pNInz6obpgDQGcFmaJgB, Daniel=onwK4e9ZLuTAKqWW03F9, Charlie=IKne3meq5aSn9XLyUdCD
-  voice_name = { 'pNInz6obpgDQGcFmaJgB' => 'Adam', 'onwK4e9ZLuTAKqWW03F9' => 'Daniel',
-                 'IKne3meq5aSn9XLyUdCD' => 'Charlie' }[voice] || voice
-  $stdout.puts "  [TTS] elevenlabs/#{voice_name}#{reencode_audio ? '+alt' : ''} text=#{text[0..60]}"
+tts_client.define_singleton_method(:synthesize) do |text, voice: 'onwK4e9ZLuTAKqWW03F9'|
+  elevenlabs_key = ENV['ELEVENLABS_API_KEY'].to_s.strip
+  use_openai = elevenlabs_key.empty?
 
-  # Use different voice settings when reencode_audio flag is set (step 3)
-  settings = if reencode_audio
-               { stability: 0.85, similarity_boost: 0.3, style: 0.1, use_speaker_boost: false }
-             else
-               { stability: 0.3, similarity_boost: 0.85, style: 0.4, use_speaker_boost: true }
-             end
+  unless use_openai
+    begin
+      voice_name = { 'pNInz6obpgDQGcFmaJgB' => 'Adam', 'onwK4e9ZLuTAKqWW03F9' => 'Daniel' }[voice] || voice
+      $stdout.puts "  [TTS] elevenlabs/#{voice_name} text=#{text[0..80]}"
 
-  uri = URI("https://api.elevenlabs.io/v1/text-to-speech/#{voice}")
-  http = Net::HTTP.new(uri.host, uri.port)
-  http.use_ssl = true
-  http.read_timeout = 60
-  request = Net::HTTP::Post.new(uri.path)
-  request['xi-api-key'] = ENV.fetch('ELEVENLABS_API_KEY')
-  request['Content-Type'] = 'application/json'
-  request['Accept'] = 'audio/mpeg'
-  request.body = JSON.generate(
-    text: text,
-    model_id: reencode_audio ? 'eleven_flash_v2_5' : 'eleven_multilingual_v2',
-    language_code: 'pl',
-    voice_settings: settings
-  )
-  response = http.request(request)
-  raise "ElevenLabs TTS failed (#{response.code}): #{response.body[0..200]}" unless response.is_a?(Net::HTTPSuccess)
+      uri = URI("https://api.elevenlabs.io/v1/text-to-speech/#{voice}")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.read_timeout = 60
+      request = Net::HTTP::Post.new(uri.path)
+      request['xi-api-key'] = elevenlabs_key
+      request['Content-Type'] = 'application/json'
+      request['Accept'] = 'audio/mpeg'
+      request.body = JSON.generate(
+        text: text,
+        model_id: 'eleven_multilingual_v2',
+        language_code: 'pl',
+        voice_settings: { stability: 0.35, similarity_boost: 0.80, style: 0.3, use_speaker_boost: true }
+      )
+      response = http.request(request)
+      if response.is_a?(Net::HTTPSuccess)
+        next reencode(response.body)
+      else
+        $stdout.puts "  [TTS] ElevenLabs failed (#{response.code}), falling back to OpenAI"
+        use_openai = true
+      end
+    rescue StandardError => e
+      $stdout.puts "  [TTS] ElevenLabs error: #{e.message[0..100]}, falling back to OpenAI"
+      use_openai = true
+    end
+  end
 
-  # Return raw or re-encoded audio
-  raw = response.body
-  reencode_audio ? reencode(raw) : raw
+  # OpenAI TTS fallback
+  $stdout.puts "  [TTS] openai/onyx text=#{text[0..80]}"
+  oai_uri = URI('https://api.openai.com/v1/audio/speech')
+  oai_http = Net::HTTP.new(oai_uri.host, oai_uri.port)
+  oai_http.use_ssl = true
+  oai_http.read_timeout = 60
+  oai_req = Net::HTTP::Post.new(oai_uri.path)
+  oai_req['Authorization'] = "Bearer #{ENV.fetch('OPENAI_API_KEY')}"
+  oai_req['Content-Type'] = 'application/json'
+  oai_req.body = JSON.generate(model: 'gpt-4o-mini-tts', input: text, voice: 'ash',
+                               instructions: 'Speak naturally in Polish, like a real person on a phone call. Casual, confident male voice.',
+                               response_format: 'mp3')
+  oai_resp = oai_http.request(oai_req)
+  raise "OpenAI TTS failed (#{oai_resp.code}): #{oai_resp.body[0..200]}" unless oai_resp.is_a?(Net::HTTPSuccess)
+
+  reencode(oai_resp.body)
 end
 
-# Whisper client — transcribes audio via OpenAI Whisper API
+# ── Whisper client ────────────────────────────────────────────────────────
+
 whisper_client = Object.new
 whisper_client.define_singleton_method(:transcribe) do |file_path|
   uri = URI('https://api.openai.com/v1/audio/transcriptions')
@@ -119,6 +139,8 @@ whisper_client.define_singleton_method(:transcribe) do |file_path|
   result['text'] || result.to_s
 end
 
+# ── Run ───────────────────────────────────────────────────────────────────
+
 runner = Services::Phonecall::Runner.new(
   hub_client: hub_client,
   tts_client: tts_client,
@@ -127,9 +149,12 @@ runner = Services::Phonecall::Runner.new(
 )
 task = Tasks::PhonecallTask.new(runner: runner)
 
-puts '-> Running phonecall task...'
-puts
 result = task.call
 
 puts
-puts "Flag: #{result[:flag]}"
+puts '=== RESULT ==='
+if result[:flag]&.match?(/\{FLG:/)
+  puts "Flag: #{result[:flag]}"
+else
+  puts 'No flag obtained.'
+end
