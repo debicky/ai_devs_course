@@ -116,8 +116,12 @@ require_relative '../app/s05/services/radiomonitoring/runner'
 require_relative '../app/s05/services/phonecall/runner'
 require_relative '../app/s05/services/shellaccess/tool_executor'
 require_relative '../app/s05/services/shellaccess/runner'
+require_relative '../app/s05/services/goingthere/frequency_scanner'
+require_relative '../app/s05/services/goingthere/hint_interpreter'
+require_relative '../app/s05/services/goingthere/runner'
 
 # S05 — Week 5 Tasks
 require_relative '../app/s05/tasks/radiomonitoring_task'
 require_relative '../app/s05/tasks/phonecall_task'
 require_relative '../app/s05/tasks/shellaccess_task'
+require_relative '../app/s05/tasks/goingthere_task'

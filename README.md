@@ -40,12 +40,13 @@ Lesson mapping:
 - Lesson 21: `bin/week_5/radiomonitoring_21` (`radiomonitoring`) — **`{FLG:GOODMORNINGZION}`**
 - Lesson 22: `bin/week_5/phonecall_22` (`phonecall`)
 - Lesson 23: `bin/week_5/shellaccess_23` (`shellaccess`) — **`{FLG:HUGEFILE}`**
+- Lesson 24: `bin/week_5/goingthere_24` (`goingthere`) — **`{FLG:FINALDESTINATION}`**
 
 ## Lesson notes
 
 Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 
-- Lesson 1 / `people` / `bin/week_1/run_1` → [`docs/lessons/lesson-01-people.md`](docs/lessons/lesson-01-people.md)
+- Lesson 1 /e `people` / `bin/week_1/run_1` → [`docs/lessons/lesson-01-people.md`](docs/lessons/lesson-01-people.md)
 - Lesson 2 / `findhim` / `bin/week_1/find_him_2` → [`docs/lessons/lesson-02-find-him.md`](docs/lessons/lesson-02-find-him.md)
 - Lesson 3 / `proxy` / `bin/week_1/proxy_3` → [`docs/lessons/lesson-03-proxy.md`](docs/lessons/lesson-03-proxy.md)
 - Lesson 4 / `sendit` / `bin/week_1/sendit_4` → [`docs/lessons/lesson-04-sendit.md`](docs/lessons/lesson-04-sendit.md)
@@ -64,6 +65,7 @@ Source lesson markdowns are stored in `docs/lessons/` for quick reference:
 - Lesson 21 / `radiomonitoring` / `bin/week_5/radiomonitoring_21` → [`docs/lessons/lesson-21-radiomonitoring.md`](docs/lessons/lesson-21-radiomonitoring.md)
 - Lesson 22 / `phonecall` / `bin/week_5/phonecall_22` → [`docs/lessons/lesson-22-phonecall.md`](docs/lessons/lesson-22-phonecall.md)
 - Lesson 23 / `shellaccess` / `bin/week_5/shellaccess_23` → [`docs/lessons/lesson-23-shellaccess.md`](docs/lessons/lesson-23-shellaccess.md)
+- Lesson 24 / `goingthere` / `bin/week_5/goingthere_24` → [`docs/lessons/lesson-24-goingthere.md`](docs/lessons/lesson-24-goingthere.md)
 
 ## Structure
 
@@ -94,6 +96,7 @@ bin/
     radiomonitoring_21            # Lesson 21: radio signal interception entrypoint
     phonecall_22                  # Lesson 22: operator phone call entrypoint
     shellaccess_23                # Lesson 23: remote shell exploration agent entrypoint
+    goingthere_24                 # Lesson 24: rocket navigation to Grudziądz entrypoint
 docs/
   lessons/
     lesson-01-people.md           # lesson note / source material
@@ -102,7 +105,8 @@ docs/
     lesson-04-sendit.md           # lesson note / source material
     lesson-05-railway.md          # lesson note / source material
     lesson-06-categorize.md       # lesson note / source material (week 2)
-    lesson-07-electricity.md      # lesson note / source material (week 2)
+    lesson-23-shellaccess.md      # lesson note / source material (week 5)
+    lesson-24-goingthere.md       # lesson note / source material (week 5)
     lesson-08-failure.md          # lesson note / source material (week 2)
     lesson-09-mailbox.md          # lesson note / source material (week 2)
     lesson-10-drone.md            # lesson note / source material (week 2)
@@ -219,10 +223,15 @@ app/
       shellaccess/
         tool_executor.rb          # execute shell commands via Hub verify endpoint
         runner.rb                 # function-calling agent loop for remote server exploration
+      goingthere/
+        frequency_scanner.rb      # OKO radar detection + SHA1 disarm
+        hint_interpreter.rb       # LLM-based radio hint → movement command
+        runner.rb                 # game loop: scan → disarm → hint → move
     tasks/
       radiomonitoring_task.rb
       phonecall_task.rb
       shellaccess_task.rb
+      goingthere_task.rb
 data/
   suspects.json                   # suspects from previous task output
   proxy_sessions/                 # generated session history, gitignored
@@ -277,6 +286,9 @@ Model selection stays in each run file. You can override it temporarily with `LL
 - `bin/week_3/negotiations_14`
   - requires `AG3NTS_API_KEY`
   - requires a public URL via `PUBLIC_BASE_URL` or a working local `ngrok` installation
+- `bin/week_5/goingthere_24`
+  - requires `AG3NTS_API_KEY`
+  - requires `OPENAI_API_KEY` or `OPENROUTER_API_KEY`
 
 ## Lesson 1 / Task 1: `people` (`bin/week_1/run_1`)
 
@@ -721,6 +733,33 @@ Notes:
 - File/directory names use `^[a-z0-9_]+$` pattern (no Polish characters).
 - Markdown links in `/osoby/` and `/towary/` files point to existing `/miasta/` files, satisfying the API validation rule.
 
+## Lesson 24 / Task 24: `goingthere` (`bin/week_5/goingthere_24`)
+
+Navigate a rocket through a 3×12 grid to reach the base in Grudziądz while avoiding rocks and OKO radar traps.
+
+What `bin/week_5/goingthere_24` does:
+
+1. Starts a new game via `command: "start"` and records the starting position (col 1, row 2) and target row.
+2. Before each move, queries the OKO frequency scanner (`GET /api/frequencyScanner`) to check for radar traps.
+3. If trapped, parses the (potentially garbled) scanner JSON, extracts `frequency` and `detectionCode`, computes `SHA1(detectionCode + "disarm")`, and sends the disarm hash to neutralise the trap.
+4. Fetches a radio navigation hint from `/api/getmessage` describing where the rock is in the next column.
+5. Sends the hint to an LLM (`gpt-4o-mini`) which interprets it into a safe movement command: `go`, `left`, or `right`.
+6. Clamps the command to prevent flying off the grid (no `left` from row 1, no `right` from row 3).
+7. Executes the move command via `/verify` with `task: "goingthere"`.
+8. Repeats steps 2–7 until reaching column 12 or crashing. On crash, restarts automatically (up to 5 attempts).
+
+```bash
+chmod +x bin/week_5/goingthere_24
+bin/week_5/goingthere_24
+```
+
+Notes:
+- The frequency scanner and radio hint APIs are intentionally unreliable — responses may be garbled or return random errors. Both scanner and hint fetchers have automatic retry logic.
+- Scanner response parsing uses both direct JSON parse and regex fallback to handle corrupted payloads.
+- The LLM only interprets short English radio hints (cheap, fast — `gpt-4o-mini` is sufficient).
+- All game state changes (position, direction) are tracked locally; the API only returns the result of each move.
+- The game has no undo — a crash means full restart.
+
 ## Quick-run examples
 
 ```bash
@@ -753,6 +792,7 @@ bin/week_4/filesystem_19                    # Lesson 19: filesystem knowledge ba
 # Week 5
 bin/week_5/radiomonitoring_21               # Lesson 21: radio signal interception
 bin/week_5/phonecall_22                     # Lesson 22: operator phone call
+bin/week_5/goingthere_24                    # Lesson 24: rocket navigation to Grudziądz
 ```
 
 ## Notes
@@ -776,3 +816,4 @@ bin/week_5/phonecall_22                     # Lesson 22: operator phone call
 - `findhim` tools are bounded by a max-iteration loop and fail loudly on invalid API responses.
 - `submit_answer` sends the final `findhim` answer to `/verify`.
 - `proxy` keeps per-session history in `data/proxy_sessions/`, which is ignored by git.
+- `goingthere` navigates a 3×12 grid rocket game: checks the OKO radar scanner and disarms traps (SHA1 hash), interprets garbled radio navigation hints via LLM to determine rock position, and moves one column at a time — scanner parsing uses aggressive regex to extract frequency and detection code from heavily garbled JSON (keys like `betecti0nC0be`), hints are sometimes unreliable so the dodge direction alternates between left/right across attempts, and the runner retries up to 50 games to get a lucky complete run.

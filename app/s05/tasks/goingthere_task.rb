@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Tasks
-  class FirmwareTask
+  class GoingtherTask
     def initialize(runner:)
       @runner = runner
     end

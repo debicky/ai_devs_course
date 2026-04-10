@@ -48,4 +48,3 @@ result = task.call
 puts
 puts "Anomalies found: #{result[:anomaly_ids].size}"
 puts "Verification:    #{result[:verification].inspect}"
-

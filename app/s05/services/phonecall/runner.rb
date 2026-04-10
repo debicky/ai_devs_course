@@ -30,7 +30,7 @@ module Services
           result = run_conversation
           return result if result[:flag]&.match?(/\{FLG:/)
 
-          log "No flag, restarting..."
+          log 'No flag, restarting...'
           sleep 3
         rescue StandardError => e
           log "ERROR: #{e.class}: #{e.message}"
@@ -51,7 +51,7 @@ module Services
         log "Session started: #{start.inspect}"
 
         # Step 1: introduce yourself
-        reply = say('Cześć, tu Tymon Gajewski.', conversation)
+        say('Cześć, tu Tymon Gajewski.', conversation)
         return abort_result(conversation) if burned? || speech_warning?
 
         # Step 2: ask about roads + mention Zygfryd transport (all in one message per lesson)
@@ -116,7 +116,7 @@ module Services
 
           followup = determine_followup(reply, conversation)
           unless followup
-            log "  No more follow-ups needed"
+            log '  No more follow-ups needed'
             return { conversation: conversation, flag: extract_flag(reply) }
           end
 
@@ -183,10 +183,10 @@ module Services
 
         # Reuse cached audio if we have a version that previously passed
         if @audio_cache.key?(cache_key)
-          log "  [cache HIT] reusing passing audio"
+          log '  [cache HIT] reusing passing audio'
           audio_bytes = @audio_cache[cache_key]
         else
-          log "  [cache MISS] synthesizing new audio"
+          log '  [cache MISS] synthesizing new audio'
           audio_bytes = voice ? @tts.synthesize(text, voice: voice, reencode_audio: reencode) : @tts.synthesize(text)
         end
 
@@ -199,10 +199,10 @@ module Services
         # Cache management: store on success, invalidate on failure
         if burned? || speech_warning?
           @audio_cache.delete(cache_key)
-          log "  [cache] invalidated"
+          log '  [cache] invalidated'
         else
           @audio_cache[cache_key] = audio_bytes
-          log "  [cache] stored ✓"
+          log '  [cache] stored ✓'
         end
 
         reply = decode_reply(result)
