@@ -52,3 +52,6 @@ puts
 puts '=== RESULT ==='
 puts "Flag: #{result[:flag]}"
 puts "Solved in iteration: #{result[:iteration]}"
+
+
+
